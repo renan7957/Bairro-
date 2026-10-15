@@ -5,6 +5,8 @@ import App from './pages/app/App.jsx';
 import './pages/app/App.scss';
 import Login from './pages/login/index.jsx';
 import './pages/login/index.scss';
+import CriarConta from './pages/criar_conta/index.jsx';
+import './pages/criar_conta/index.scss'
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
@@ -15,6 +17,7 @@ root.render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/criarconta" element={<CriarConta/>} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
