@@ -17,7 +17,7 @@ root.render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/criarconta" element={<CriarConta/>} />
+        <Route path="/cadastro" element={<CriarConta/>} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
