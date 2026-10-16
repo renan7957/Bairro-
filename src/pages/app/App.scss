@@ -1,4 +1,82 @@
 .App {
-  text-align: center;
-}
+  font-family: Arial, sans-serif;
+  background-color: #E8F0FF;
+  min-height: 100vh;
 
+  /* CABEÇALHO */
+
+  .cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 7%;
+    background-color: #FFFFFF;
+    box-shadow: 0 2px 8px #244BFF10;
+
+  }
+
+  /* LOGO */
+
+  .logo img {
+    width: 200px;
+    height: auto;
+    display: block;
+  }
+
+  /* MENU */
+
+  .menu {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+  }
+
+  .menu a {
+    text-decoration: none;
+    color: #243B64;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+
+  .menu .botao-entrar {
+    color: #FFFFFF;
+  }
+
+  .menu .botao-entrar:hover {
+    color: #FFFFFF;
+  }
+
+  .menu a:hover {
+    color: #244BFF;
+  }
+
+
+
+  /* BOTÃO ENTRAR */
+
+  .botao-entrar {
+    background-color: #244BFF;
+    text-decoration: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+
+  .botao-entrar:hover {
+    background-color: #2243d6;
+  }
+
+  .page{
+    display: flex;
+    justify-content: space-around;
+    background-color: #2471ff;
+  }
+
+  .mensagem{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+}

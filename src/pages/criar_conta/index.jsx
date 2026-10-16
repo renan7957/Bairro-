@@ -58,7 +58,7 @@ export default function CriarConta() {
 
                                 <input
                                     type="text"
-                                    placeholder="Nome de usuario"
+                                    placeholder="Nome "
                                 />
                             </div>
 
@@ -104,7 +104,7 @@ export default function CriarConta() {
 
                                 <input
                                     type="password"
-                                    placeholder="Confirmar senha"
+                                    placeholder="Confirmar"
                                 />
                             </div>
 
@@ -169,9 +169,9 @@ export default function CriarConta() {
                             <span></span>
                         </div>
 
-                        {/* Criar conta */}
+                        {/* logar conta */}
                         <a
-                            href="/cadastro"
+                            href="/login"
                             className="logar-conta"
                         >
                             Fazer login
