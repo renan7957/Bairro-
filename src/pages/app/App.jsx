@@ -31,14 +31,25 @@ export default function App() {
             e tornar o seu bairro um lugar mais seguro<br></br>
             e unido! </p>
 
-            <a href='/cadastro'>
+          <a href='/cadastro'>
             Comece Ja!</a>
         </div>
 
-        <div className='celular'>
-          <img src='./assets/images/tela.png' />
+
+        <div className='orbita'>
+             <img src='./assets/images/bairro-orbita.svg' />
         </div>
       </section>
+
+
+
+
+
+
+
+
+
+
 
     </div>
   );

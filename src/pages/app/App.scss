@@ -68,15 +68,31 @@
     background-color: #2243d6;
   }
 
-  .page{
+
+
+
+
+
+  /* PArte do Hero*/
+  .page {
     display: flex;
     justify-content: space-around;
     background-color: #2471ff;
   }
 
-  .mensagem{
+  .mensagem {
+    margin-top: 60px;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    gap: 100px ;
   }
+
+
+  
+
+
+
+
+
+
 }
