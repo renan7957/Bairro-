@@ -9,7 +9,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 15px 7%;
+    padding: 6px 7%;
     background-color: #FFFFFF;
     box-shadow: 0 2px 8px #244BFF10;
 
@@ -18,7 +18,7 @@
   /* LOGO */
 
   .logo img {
-    width: 200px;
+    width: 230px;
     height: auto;
     display: block;
   }
@@ -77,14 +77,67 @@
   .page {
     display: flex;
     justify-content: space-around;
-    background-color: #2471ff;
+    background-color: #f0f2f6;
   }
 
   .mensagem {
     margin-top: 60px;
     display: flex;
     flex-direction: column;
-    gap: 100px ;
+    gap: 28px ;
+  }
+
+  .mensagem h1{
+    font-size: 60px;
+    color: #1D4ED8;
+  }
+
+  .mensagem span{
+    color: #1E40AF;
+  }
+
+  .mensagem p{
+    font-size: 20px;
+    color:#647DC4;
+  }
+
+  .botoes-hero{
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+
+  }
+
+
+  /* Botao criar conta*/
+  .cadastro{
+    padding: 10px 36px;
+    background-color: #1D4ED8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border-radius: 999px;
+    color: #F0F8FF;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+
+  .cadastro:hover{
+    background-color: #1E40AF;
+    transition: 0.3s;
+  }
+
+/* Botao ja tenho conta conta*/
+  .login{
+    padding: 10px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #243B64;
+    text-decoration: none;
+    font-weight: bold;
   }
 
 
@@ -93,6 +146,115 @@
 
 
 
+
+
+  /* PARTE DOS REECURSOS*/
+
+  .recursos{
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background-color: #FFFFFF;
+    padding: 90px 0;
+    gap:  50px;
+  }
+
+  .cards{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    width: 20%;
+  }
+
+  .icons{
+    background-color: #e1eafa;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+  }
+
+  .icons img{
+    width: 50px;
+  }
+
+  .recursos h1{
+    font-size: 35px;
+    color: #1D4ED8;
+    font-weight: bold;
+  }
+
+  .recursos p{
+    font-size: 18px;
+    color: #647DC4;
+  }
+
+
+
+
+
+
+  /* PAGINA 3 MFKRMO */
+  .pagina3 {
+    display: flex;
+    padding: 90px ;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+  
+  .bairroimg img{
+    width: 600px;
+    border-radius: 20px;
+  }
+
+  .selo-sobre{
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    border: 1px solid #647dc4;
+    border-radius: 999px;
+    padding: 8px 16px;
+    width: 45%;
+    text-align: center;
+    background-color: #fff;
+    color: #1D4ED8;
+  }
+
+  .textos{
+    display: flex ;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .textos h1{
+    font-size: 60px;
+    color: #1D4ED8;
+  }
+
+  .textos p{
+    font-size: 20px;
+    color: #647DC4;
+  }
+
+
+
+
+
+
+
+
+  /* PARTE DO FOOTER*/
+
+  .logofooter img{
+    width: 300px;
+  }
+
+  footer{
+    background-color: #1D4ED8;
+  }
 
 
 }

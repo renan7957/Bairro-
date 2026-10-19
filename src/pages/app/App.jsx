@@ -25,19 +25,31 @@ export default function App() {
       <section className='page'>
 
         <div className='mensagem'>
-          <h1>Conecte-se com seu bairro!</h1>
-          <p>o BAIRRO+ é uma rede social feita para <br></br>
-            aproximar vizinhos, fortalecer a comunidade<br></br>
-            e tornar o seu bairro um lugar mais seguro<br></br>
-            e unido! </p>
+          <h1>Juntos por um <br></br> bairro mais <br></br> <span>conectado! </span> </h1>
 
-          <a href='/cadastro'>
-            Comece Ja!</a>
+          <p>Crie sua conta e faça parte de uma comunidade que <br></br> compartilha, ajuda e melhora o nosso bairro. </p>
+
+
+          <div className='botoes-hero'>
+
+            <a className='cadastro' href='/cadastro'>
+              Criar conta
+
+              <img src="/assets/images/arrow-right.svg" alt="" className="arrow-icon" />
+
+            </a>
+
+            <a className='login' href='/login'>
+              Já tenho conta
+            </a>
+
+          </div>
+
         </div>
 
 
         <div className='orbita'>
-             <img src='./assets/images/bairro-orbita.svg' />
+          <img src='./assets/images/bairro-orbita.svg' />
         </div>
       </section>
 
@@ -49,6 +61,102 @@ export default function App() {
 
 
 
+      <section className='recursos'>
+
+
+        <div className='cards'>
+          <div className='icons'>
+            <img src='/assets/images/message-circle-more.svg' />
+          </div>
+
+          <h1>Compartilhe</h1>
+
+          <p>avise sobre eventos, <br></br> situacoes importantes <br></br>
+            e o que acontece <br></br> no seu bairro
+          </p>
+
+        </div>
+
+
+
+        <div className='cards'>
+          <div className='icons'>
+            <img src='/assets/images/users.svg' />
+          </div>
+
+          <h1>Conecte-se</h1>
+
+          <p>Conheça seus vizinhos <br></br> e fortaleça a comunidade
+          </p>
+
+        </div>
+
+
+
+
+        <div className='cards'>
+          <div className='icons'>
+            <img src='/assets/images/shield.svg' />
+          </div>
+
+          <h1>Mais segurança</h1>
+
+          <p>Denuncie problemas <br></br> e ajude a manter o bairro <br></br>
+            mais seguro
+          </p>
+
+        </div>
+
+
+
+
+        <div className='cards'>
+          <div className='icons'>
+            <img src='/assets/images/mapa2.svg' />
+          </div>
+
+          <h1>Serviços locais</h1>
+
+          <p>Encontre comercios, <br></br> serviços e tudo o que <br></br>
+            você precisa por perto
+          </p>
+
+        </div>
+
+      </section>
+
+
+
+      <section className='pagina3'>
+
+        <div className='bairroimg'>
+          <img src='/assets/images/bairrosp.jpg' />
+        </div>
+
+        <div className='textos'>
+          <span className='selo-sobre'>
+            SOBRE O BAIRRO+
+          </span>
+
+          <h1>
+            Uma rede social <br></br> para seu bairro.
+          </h1>
+
+          <p>O BAIRRO+ é uma plataforma feita para conectar <br></br>
+          pessoas, facilitar a comunicação e fortelecer <br></br>
+          a nossa comunidade.
+          </p>
+        </div>
+
+      </section>
+
+
+      <footer>
+
+        <div className='logofooter'>
+          <img src='/assets/images/logo3.png'/>
+        </div>
+      </footer>
 
 
     </div>
