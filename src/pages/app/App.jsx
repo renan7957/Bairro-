@@ -143,8 +143,8 @@ export default function App() {
           </h1>
 
           <p>O BAIRRO+ é uma plataforma feita para conectar <br></br>
-          pessoas, facilitar a comunicação e fortelecer <br></br>
-          a nossa comunidade.
+            pessoas, facilitar a comunicação e fortelecer <br></br>
+            a nossa comunidade.
           </p>
         </div>
 
@@ -153,10 +153,46 @@ export default function App() {
 
       <footer>
 
-        <div className='logofooter'>
-          <img src='/assets/images/logo3.png'/>
-        </div>
-      </footer>
+  <div className='footer-conteudo'>
+
+    <div className='logofooter'>
+      <img src='/assets/images/logo2.webp' />
+    </div>
+
+    <div className='footer4'>
+      <div className='footer2'>
+        <img src='/assets/images/mailbranco.svg' />
+        <p>contato@gmail.com</p>
+      </div>
+
+      <div className='footer2'>
+        <img src='/assets/images/telefone.svg' />
+        <p>contato@gmail.com</p>
+      </div>
+
+      <div className='footer2'>
+        <img src='/assets/images/mapa4.svg' />
+        <p>contato@gmail.com</p>
+      </div>
+    </div>
+
+    <div className='redes'>
+      <div className='footer3'>
+        <img src='/assets/images/face.png' />
+      </div>
+      <div className='footer3'>
+        <img src='/assets/images/linkedin.jpg' />
+      </div>
+      <div className='footer3'>
+        <img src='/assets/images/instagram.png' />
+      </div>
+    </div>
+
+  </div>
+
+  <p className='copyright'>© 2026 BAIRRO+. Todos os direitos reservados.</p>
+
+</footer>
 
 
     </div>
