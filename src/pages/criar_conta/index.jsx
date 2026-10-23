@@ -1,9 +1,20 @@
-import './index.scss'
+import './index.scss';
 
 export default function CriarConta() {
     return (
+    
 
         <div className='pagina-cadastro'>
+
+        <a href="/login" className="Voltar">
+        <img
+            src="/assets/images/arrow-left.png"
+          
+            className="arrow-icon-voltar"
+        />
+           
+         </a>
+
             <section className='cadastro'>
 
 

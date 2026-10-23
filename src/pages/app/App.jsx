@@ -13,7 +13,6 @@ export default function App() {
         <nav className="menu">
           <a href="#inicio">Início</a>
           <a href="#sobre">Sobre</a>
-          <a href="#recursos">Recursos</a>
           <a href="#contato">Contato</a>
           <a href="/login" className="botao-entrar">
             Entrar
