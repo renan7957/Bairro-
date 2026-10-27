@@ -1,0 +1,88 @@
+.pag-feed {
+  font-family: Arial, sans-serif;
+  background-color: #E8F0FF;
+  min-height: 100vh;
+
+  .cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 7%;
+    background-color: #FFFFFF;
+    box-shadow: 0 2px 8px #244BFF10;
+  }
+
+  .logo img {
+    width: 230px;
+    height: auto;
+    display: block;
+  }
+
+  .menu {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+  }
+
+  .menu a {
+    text-decoration: none;
+    color: #243B64;
+    font-size: 16px;
+  }
+
+  .menu a:not(.botao-entrar) {
+    position: relative;
+    transition: 0.3s;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 0;
+      height: 2px;
+      background: #244BFF;
+      transition: 0.3s;
+    }
+
+    &:hover {
+      color: #244BFF;
+    }
+
+    &:hover::after {
+      width: 100%;
+    }
+  }
+
+  .botao-sair {
+    background-color: #244BFF;
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:hover {
+      background-color: #2243d6;
+    }
+  }
+
+  .conteudo-feed {
+    padding: 40px 7%;
+    color: #243B64;
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    section {
+      margin-top: 35px;
+      padding: 25px;
+      background-color: #FFFFFF;
+      border-radius: 12px;
+    }
+  }
+}
