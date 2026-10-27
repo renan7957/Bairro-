@@ -3,8 +3,22 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #F0F8FF;
+    min-height: 100dvh;
+    padding: clamp(8px, 2vh, 20px) 0;
+    box-sizing: border-box;
+     background: linear-gradient( to bottom right, #8FA5EC 0%, #FFFFFF 55%, #6B84DC 100%);
     font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    img {
+        max-width: 100%;
+    }
 
     section {
         display: flex;
@@ -12,45 +26,55 @@
         justify-content: center;
         gap: 50px;
         width: 90%;
+        max-width: 1600px;
     }
 
     .login-image {
+        flex: 1 1 700px;
         width: 700px;
+        max-width: 700px;
+        min-width: 0;
     }
 
     .login-image img {
+        display: block;
         width: 100%;
+        height: auto;
     }
 
     .login-card {
+        flex: 0 1 520px;
         width: 520px;
-        padding: 35px 45px;
+        max-width: 100%;
+        min-width: 400px;
+        padding: clamp(18px, 4vh, 35px) 45px;
         background-color: white;
         border-radius: 12px;
         box-shadow: 0 8px 25px #00000020;
-
     }
 
     .login-form {
         display: flex;
         flex-direction: column;
-        gap: 30px;
+        gap: clamp(10px, 3vh, 30px);
     }
 
     .logo {
-        width: 200px;
+        width: clamp(110px, 22vh, 200px);
+        max-width: 100%;
+        height: auto;
         align-self: center;
     }
 
     .login-form h1 {
         margin: 0;
-        font-size: 40px;
+        font-size: clamp(26px, min(4vw, 5.5vh), 40px);
         color: #1D4ED8;
     }
 
     .p1 {
         margin: -12px 0 8px;
-        font-size: 20px;
+        font-size: clamp(16px, 1.6vw, 20px);
         line-height: 1.4;
         color: #647DC4;
     }
@@ -59,30 +83,35 @@
     .input-senha {
         display: flex;
         align-items: center;
-        height: 56px;
+        height: clamp(44px, 7vh, 56px);
         padding: 0 15px;
         border: 1px solid #999;
         border-radius: 10px;
     }
 
     .icon {
+        flex-shrink: 0;
         width: 23px;
         height: 23px;
     }
 
     .input-nome input,
     .input-senha input {
+        flex: 1;
         width: 100%;
+        min-width: 0;
         padding: 10px;
         border: none;
         outline: none;
         font-size: 15px;
+        background: transparent;
     }
 
     .checkbox-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
         gap: 10px;
     }
 
@@ -95,6 +124,7 @@
     }
 
     .checkbox input {
+        flex-shrink: 0;
         width: 20px;
         height: 20px;
         accent-color: #1D4ED8;
@@ -121,6 +151,7 @@
         align-items: center;
         gap: 12px;
         width: 75%;
+        min-width: 160px;
         padding: 12px;
         background-color: #1D4ED8;
         color: white;
@@ -135,6 +166,7 @@
     }
 
     .arrow-icon {
+        flex-shrink: 0;
         width: 24px;
         height: 24px;
     }
@@ -169,20 +201,85 @@
         text-decoration: none;
     }
 
+    /* ========== Telas muito grandes (TVs, monitores 4K) ========== */
+    @media (min-width: 1921px) {
+        section {
+            gap: 70px;
+        }
+    }
+
+    /* ========== Notebooks / desktops menores ========== */
+    @media (max-width: 1280px) {
+        section {
+            gap: 35px;
+        }
+
+        .login-card {
+            padding: clamp(18px, 4vh, 32px) 36px;
+        }
+    }
+
+    /* ========== Tablets na horizontal ========== */
+    @media (max-width: 1024px) {
+        section {
+            gap: 25px;
+        }
+
+        .login-card {
+            min-width: 380px;
+            padding: clamp(18px, 4vh, 30px);
+        }
+
+        .login-form {
+            gap: clamp(10px, 3vh, 24px);
+        }
+    }
+
+    /* ========== Tablets na vertical / celulares grandes ========== */
     @media (max-width: 900px) {
+        section {
+            width: 100%;
+            padding: 0 20px;
+        }
+
         .login-image {
             display: none;
         }
 
         .login-card {
-            width: 90%;
+            flex: 0 1 520px;
+            width: 100%;
+            min-width: 0;
             padding: 30px;
         }
     }
 
+    /* ========== Celulares ========== */
+    @media (max-width: 600px) {
+        section {
+            padding: 0 16px;
+        }
+
+        .login-form {
+            gap: 22px;
+        }
+    }
+
     @media (max-width: 480px) {
+        section {
+            padding: 0 12px;
+        }
+
         .login-card {
             padding: 25px 18px;
+        }
+
+        .login-form {
+            gap: 20px;
+        }
+
+        .logo {
+            width: 160px;
         }
 
         .login-form h1 {
@@ -190,7 +287,13 @@
         }
 
         .p1 {
+            margin: -8px 0 4px;
             font-size: 16px;
+        }
+
+        .input-nome,
+        .input-senha {
+            height: 52px;
         }
 
         .checkbox-container {
@@ -211,4 +314,55 @@
         }
     }
 
+    /* ========== Celulares pequenos ========== */
+    @media (max-width: 360px) {
+        .login-card {
+            padding: 22px 14px;
+        }
+
+        .logo {
+            width: 140px;
+        }
+
+        .login-form h1 {
+            font-size: 26px;
+        }
+
+        .p1 {
+            font-size: 14px;
+        }
+
+        .input-nome,
+        .input-senha {
+            padding: 0 10px;
+        }
+
+        .login-button {
+            width: 100%;
+            font-size: 18px;
+        }
+
+        .checkbox,
+        .checkbox-container a {
+            font-size: 13px;
+        }
+    }
+
+    /* ========== Celular/tablet deitado (pouca altura) ========== */
+    @media (max-height: 600px) and (orientation: landscape) {
+        align-items: flex-start;
+        padding: 16px 0;
+
+        .login-form {
+            gap: 16px;
+        }
+
+        .logo {
+            width: 130px;
+        }
+
+        .login-card {
+            padding: 20px 28px;
+        }
+    }
 }

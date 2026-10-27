@@ -3,8 +3,25 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #F0F8FF;
+    min-height: 100dvh;
+    padding: clamp(8px, 2vh, 20px) 0;
+    background: linear-gradient( to bottom right, #8FA5EC 0%, #FFFFFF 55%, #6B84DC 100%);
     font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    img {
+        max-width: 100%;
+    }
+
+    .Voltar {
+        flex-shrink: 0;
+    }
 
     section {
         display: flex;
@@ -12,11 +29,15 @@
         justify-content: center;
         gap: 50px;
         width: 90%;
+        max-width: 1600px;
     }
 
     .cadastro-card {
+        flex: 0 1 520px;
         width: 520px;
-        padding: 35px 45px;
+        max-width: 100%;
+        min-width: 440px;
+        padding: clamp(18px, 4vh, 35px) 45px;
         background-color: white;
         border-radius: 12px;
         box-shadow: 0 8px 25px #00000020;
@@ -25,29 +46,28 @@
     .cadastro-form {
         display: flex;
         flex-direction: column;
-        gap: 30px;
+        gap: clamp(10px, 3vh, 30px);
     }
 
     .Campos-cadastro {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px 30px;
     }
 
     .Campos-cadastro input {
         width: 100%;
-        box-sizing: border-box;
     }
 
     h1 {
         margin: 0;
-        font-size: 40px;
+        font-size: clamp(26px, min(4vw, 5.5vh), 40px);
         color: #1D4ED8;
     }
 
     .p1 {
         margin: -12px 0 8px;
-        font-size: 20px;
+        font-size: clamp(14px, min(1.6vw, 2.6vh), 20px);
         line-height: 1.4;
         color: #647DC4;
     }
@@ -55,12 +75,10 @@
     .input-nome,
     .input-email,
     .input-senha,
-    .input-bairro,
     .input-telefone {
-
         display: flex;
         align-items: center;
-        height: 56px;
+        height: clamp(44px, 7vh, 56px);
         padding: 0 15px;
         border: 1px solid #999;
         border-radius: 10px;
@@ -70,23 +88,29 @@
     .input-nome input,
     .input-senha input,
     .input-email input {
+        flex: 1;
         width: 100%;
+        min-width: 0;
         padding: 10px;
         border: none;
         outline: none;
         font-size: 15px;
+        background: transparent;
     }
 
-    .input-bairro input,
     .input-telefone input {
+        flex: 1;
         width: 100%;
+        min-width: 0;
         padding: 10px;
         border: none;
         outline: none;
         font-size: 15px;
+        background: transparent;
     }
 
     .icon {
+        flex-shrink: 0;
         width: 23px;
         height: 23px;
     }
@@ -101,6 +125,7 @@
         color: #F0F8FF;
         gap: 12px;
         width: 75%;
+        min-width: 160px;
         padding: 12px;
         display: flex;
         justify-content: center;
@@ -151,12 +176,17 @@
     }
 
     .cadastro-image .logo {
-        width: 200px;
+        width: clamp(130px, 20vh, 200px);
+        height: auto;
         align-self: center;
     }
 
     .cadastro-image {
-        width: 700px;
+        flex: 1 1 600px;
+        width: 600px;
+        max-width: 600px;
+        min-width: 0;
+        max-height: calc(100dvh - clamp(16px, 4vh, 40px));
         display: flex;
         flex-direction: column;
         gap: 0px;
@@ -164,6 +194,19 @@
 
     .cadastro-image img {
         width: 100%;
+    }
+
+    /* A imagem ocupa todo o espaço disponível e só diminui
+       o necessário para a página não ter scroll */
+    .cadastro-image > img {
+        flex: 0 1 auto;
+        height: auto;
+        min-height: 180px;
+        object-fit: contain;
+    }
+
+    .descricao {
+        flex-shrink: 0;
     }
 
     .titulo2 {
@@ -178,15 +221,23 @@
     }
 
     .descricao .logo {
-        width: 200px;
+        width: clamp(130px, 20vh, 200px);
+        height: auto;
         align-self: center;
+    }
+
+    .descricao h1 {
+        font-size: clamp(24px, min(3.4vw, 5vh), 40px);
+    }
+
+    .descricao .p1 {
+        font-size: clamp(14px, min(1.6vw, 2.4vh), 20px);
     }
 
     .descricao h1,
     .descricao .p1 {
         width: 420px;
         max-width: 100%;
-        box-sizing: border-box;
         text-align: left;
     }
 
@@ -202,6 +253,236 @@
         width: 40px;
         height: 40px;
     }
-    
 
+    a:hover {
+        color: #17369c;
+    }
+
+    /* ========== Telas muito grandes (TVs, monitores 4K) ========== */
+    @media (min-width: 1921px) {
+        section {
+            gap: 70px;
+        }
+    }
+
+    /* ========== Notebooks / desktops menores ========== */
+    @media (max-width: 1280px) {
+        section {
+            gap: 35px;
+        }
+
+        .cadastro-card {
+            padding: clamp(18px, 4vh, 32px) 36px;
+        }
+
+        .Campos-cadastro {
+            column-gap: 20px;
+        }
+    }
+
+    /* ========== Tablets na horizontal ========== */
+    @media (max-width: 1024px) {
+        section {
+            gap: 25px;
+        }
+
+        .cadastro-card {
+            padding: clamp(18px, 4vh, 30px);
+        }
+
+        .Campos-cadastro {
+            column-gap: 14px;
+        }
+    }
+
+    /* ========== Tablets na vertical / celulares grandes ========== */
+    @media (max-width: 900px) {
+        position: relative;
+        align-items: flex-start;
+        padding: 64px 0 24px;
+
+        .Voltar {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+        }
+
+        section {
+            flex-direction: column;
+            width: 100%;
+            padding: 0 20px;
+            gap: 20px;
+        }
+
+        /* Mantém só a logo; some a ilustração e os textos */
+        .cadastro-image {
+            flex: none;
+            width: 100%;
+            max-width: 520px;
+            max-height: none;
+        }
+
+        .cadastro-image > img,
+        .descricao h1,
+        .descricao .p1 {
+            display: none;
+        }
+
+        .cadastro-image .logo,
+        .descricao .logo {
+            width: 160px;
+        }
+
+        .cadastro-card {
+            flex: none;
+            width: 100%;
+            max-width: 520px;
+            min-width: 0;
+            padding: 30px;
+        }
+
+        .cadastro-form {
+            gap: 24px;
+        }
+
+        .Campos-cadastro {
+            column-gap: 20px;
+        }
+
+        .input-nome,
+        .input-email,
+        .input-senha,
+        .input-bairro,
+        .input-telefone {
+            height: 56px;
+        }
+
+        h1 {
+            font-size: 36px;
+        }
+
+        .p1 {
+            font-size: 18px;
+        }
+    }
+
+    /* ========== Celulares ========== */
+    @media (max-width: 600px) {
+        section {
+            padding: 0 16px;
+        }
+
+        .cadastro-form {
+            gap: 22px;
+        }
+
+        .Campos-cadastro {
+            column-gap: 12px;
+        }
+    }
+
+    @media (max-width: 520px) {
+        /* Campos em uma coluna para caber o texto */
+        .Campos-cadastro {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        padding-top: 60px;
+
+        section {
+            padding: 0 12px;
+        }
+
+        .cadastro-card {
+            padding: 25px 18px;
+        }
+
+        .cadastro-form {
+            gap: 20px;
+        }
+
+        .cadastro-image .logo,
+        .descricao .logo {
+            width: 140px;
+        }
+
+        h1 {
+            font-size: 30px;
+        }
+
+        .p1 {
+            margin: -8px 0 4px;
+            font-size: 16px;
+        }
+
+        .input-nome,
+        .input-email,
+        .input-senha,
+        .input-bairro,
+        .input-telefone {
+            height: 52px;
+        }
+
+        .criar-button {
+            width: 85%;
+            font-size: 19px;
+        }
+
+        .divisor {
+            gap: 8px;
+        }
+
+        .divisor p {
+            font-size: 11px;
+        }
+    }
+
+    /* ========== Celulares pequenos ========== */
+    @media (max-width: 360px) {
+        .cadastro-card {
+            padding: 22px 14px;
+        }
+
+        .cadastro-image .logo,
+        .descricao .logo {
+            width: 120px;
+        }
+
+        h1 {
+            font-size: 26px;
+        }
+
+        .p1 {
+            font-size: 14px;
+        }
+
+        .input-nome,
+        .input-email,
+        .input-senha,
+        .input-bairro,
+        .input-telefone {
+            padding: 0 10px;
+        }
+
+        .criar-button {
+            width: 100%;
+            font-size: 18px;
+        }
+    }
+
+    /* ========== Celular/tablet deitado (pouca altura) ========== */
+    @media (max-height: 600px) and (orientation: landscape) {
+        align-items: flex-start;
+        padding: 16px 0;
+
+        .cadastro-form {
+            gap: 14px;
+        }
+
+        .cadastro-card {
+            padding: 20px 28px;
+        }
+    }
 }

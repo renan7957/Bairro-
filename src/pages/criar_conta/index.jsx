@@ -138,23 +138,6 @@ export default function CriarConta() {
 
 
 
-
-                        {/* Campo-bairro */}
-                        <div className='input-bairro'>
-
-                            <img
-                                className='icon'
-                                src='/assets/images/map-pinned.svg'
-                                alt='mapa'
-                            />
-
-                            <input
-                                type='text'
-                                placeholder='Selecione o bairro'
-                            />
-                        </div>
-
-
                         {/* Botão entrar */}
                         <div className="criar-buttons">
                             <button
