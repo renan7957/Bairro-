@@ -17,6 +17,12 @@ export default function Feed() {
                     />
                 </a>
 
+                <div className='pesquisa'>
+                    <img src='/assets/images/search.svg'/>
+
+                    <input type='text' placeholder='Pesquise'/>
+                </div>
+
                 <nav className="menu">
                     <a href="/inicio">Início</a>
                     <a href="#publicacoes">Publicações</a>

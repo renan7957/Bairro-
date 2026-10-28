@@ -9,7 +9,7 @@ import CriarConta from './pages/criar_conta/index.jsx';
 import './pages/criar_conta/index.scss';
 import Feed from './pages/feed/index.jsx';
 import './pages/feed/index.scss';
-import RotaProtegida from './pages/components/rotaprotegida.jsx';
+import RotaProtegida from './components/rotaprotegida.jsx';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 

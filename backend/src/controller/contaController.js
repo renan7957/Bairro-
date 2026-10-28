@@ -1,41 +1,37 @@
-import * as service from '../service/contaService.js';
 
-import { Router } from "express";
+import * as service from '../service/contaService.js';
+import { Router } from 'express';
+
 const endpoints = Router();
 
-
-
 endpoints.post('/conta', async (req, resp) => {
-  try {
-    let conta = req.body;
+    try {
+        const conta = req.body;
 
-    let id = await service.saveConta(conta);
-    resp.send({ id });
-  }
-  catch (err) {
-    resp.status(400).send({
-      erro: err.message
-    })
-  }
-})
+        await service.saveConta(conta);
 
+        const token = await service.login(conta.email, conta.senha);
 
-
+        resp.status(201).send({ token });
+    } catch (err) {
+        resp.status(400).send({
+            erro: err.message
+        });
+    }
+});
 
 endpoints.post('/conta/login', async (req, resp) => {
-  try {
-    let email = req.body.email;
-    let senha = req.body.senha;
+    try {
+        const { email, senha } = req.body;
 
-    let token = await service.login(email, senha);
-    resp.send({token});
-  }
-  catch (err) {
-    resp.status(401).send({
-      erro: err.message
-    })
-  }
-})
+        const token = await service.login(email, senha);
 
+        resp.send({ token });
+    } catch (err) {
+        resp.status(401).send({
+            erro: err.message
+        });
+    }
+});
 
 export default endpoints;
