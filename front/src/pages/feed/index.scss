@@ -85,4 +85,28 @@
       border-radius: 12px;
     }
   }
+
+
+  .pesquisa input{
+    border: none;
+    font-size: 16px;
+    padding: 5px;
+    width: 80%;
+    outline: none;
+  }  
+
+  .pesquisa img{
+    width: 25px;
+  }
+
+  .pesquisa{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border: 2px solid #b7c4da;
+    border-radius: 20px;
+    height: 38px;
+    width: 35%;
+  }
 }
