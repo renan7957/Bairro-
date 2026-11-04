@@ -41,7 +41,9 @@ export default function Login() {
     }
 
     return (
-        <div className="pagina-login">
+        <div className="pagina-login" 
+        style={{ background: "url('/assets/images/fundo.webp') center / cover no-repeat" }}>
+
             <section className="login-section">
                 <div className="login-image">
                     <img
