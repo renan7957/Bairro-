@@ -63,7 +63,10 @@ async function cadastrar(event) {
 }
 
 return (
-    <div className="pagina-cadastro">
+
+
+    <div className="pagina-cadastro" 
+     style={{ background: "url('/assets/images/fundo1.png') center / cover no-repeat" }}>
         <a href="/login" className="Voltar">
             <img
                 src="/assets/images/arrow-left.png"
