@@ -45,12 +45,7 @@ export default function Login() {
         style={{ background: "url('/assets/images/fundo2.png') center / cover no-repeat" }}>
 
             <section className="login-section">
-                <div className="login-image">
-                    <img
-                        src="/assets/images/casinha.png"
-                        alt="Ilustração do Bairro+"
-                    />
-                </div>
+                
 
                 <div className="login-card">
                     <form className="login-form" onSubmit={entrar}>

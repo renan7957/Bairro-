@@ -159,6 +159,10 @@
         background-color: #647DC4;
     }
 
+    .cadastro-card .logo{
+        width: 150px;
+    }
+
     .divisor p {
         margin: 0;
         color: #647DC4;
@@ -194,6 +198,13 @@
 
     .cadastro-image img {
         width: 100%;
+    }
+
+    .logo{
+        width: clamp(110px, 22vh, 200px);
+        max-width: 100%;
+        height: auto;
+        align-self: center;
     }
 
     /* A imagem ocupa todo o espaço disponível e só diminui
