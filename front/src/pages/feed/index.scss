@@ -10,6 +10,7 @@
     padding: 6px 7%;
     background-color: #FFFFFF;
     box-shadow: 0 2px 8px #244BFF10;
+    height: 100px;
   }
 
   .logo img {
@@ -87,26 +88,140 @@
   }
 
 
-  .pesquisa input{
+  .pesquisa input {
     border: none;
     font-size: 16px;
     padding: 5px;
     width: 80%;
     outline: none;
-  }  
+  }
 
-  .pesquisa img{
+  .pesquisa img {
     width: 25px;
   }
 
-  .pesquisa{
+  .pesquisa {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 5px;
     border: 2px solid #b7c4da;
-    border-radius: 20px;
+    border-radius: 10px;
     height: 38px;
     width: 35%;
   }
+
+
+
+
+
+
+  .layout-feed {
+    display: flex;
+    min-height: calc(100vh - 80px);
+  }
+
+  .aside {
+    width: 260px;
+    min-height: calc(100vh - 80px);
+    padding: 40px 25px;
+    border-right: 3px solid #8baeff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    gap: 30px;
+  }
+
+  .menu-lateral {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    a {
+      height: 58px;
+      padding: 0 20px;
+      border-radius: 17px;
+      background: white;
+
+      display: flex;
+      align-items: center;
+      gap: 15px;
+
+      color: #092aac;
+      text-decoration: none;
+      font-size: 18px;
+
+      img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+      }
+    }
+
+
+
+    a:hover {
+      background-color: #8b9ee7;
+      transition: 0.2s linear;
+    }
+  }
+
+
+  .card-aside {
+    width: 100%;
+    min-height: 300px;
+    padding: 25px 18px;
+    border-radius: 18px;
+    background: white;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    
+
+    h2 {
+      color: #092aac;
+      font-size: 21px;
+      line-height: 1.4;
+      margin: 15px 0;
+    }
+
+    .icone-grupo {
+      width: 100%;
+
+      img {
+        width: 140px;
+        height: auto;
+        object-fit: contain;
+      }
+    }
+
+    .imagem-bairro {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+
+      img {
+        width: 100%;
+        max-width: 220px;
+        height: auto;
+        object-fit: contain;
+      }
+    }
+  }
+
+  .conteudo-feed {
+    flex: 1;
+    min-width: 0;
+    padding: 30px;
+  }
+
+  @media (max-width: 768px) {
+    .aside {
+      display: none;
+    }
+  }
+
 }
