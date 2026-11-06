@@ -9,8 +9,12 @@ export default function Feed() {
     }
 
     return (
+
+
         <div className="pag-feed">
 
+
+            {/*<-- Cabeçalho -->*/}
             <header className="cabecalho">
                 <a href="/inicio" className="logo">
                     <img
@@ -43,9 +47,12 @@ export default function Feed() {
 
 
 
-
+            {/*<-- Layout do feed -->*/}
             <div className="layout-feed">
 
+
+
+                {/*<-- Aside da esquerda -->*/}
                 <aside className="aside"
                     style={{ background: "url('/assets/images/fundo2.png') center / cover no-repeat" }}>
 
@@ -89,6 +96,10 @@ export default function Feed() {
 
                 </aside>
 
+
+
+
+                {/*<-- Conteudo principal do feed/ do meio -->*/}
                 <main className="conteudo-feed">
                     <h1>Bem-vindo ao Bairro+!</h1>
                     <p>Conecte-se com sua comunidade.</p>
@@ -100,7 +111,98 @@ export default function Feed() {
                 </main>
 
 
+
+
+
+                {/*<-- Aside da direita -->*/}
+                <aside className="aside2"
+                    style={{ background: "url('/assets/images/fundo2.png') center / cover no-repeat" }}>
+
+                    <div className='card-eventos'>
+
+
+                        <div className='titulo-eventos'>
+                            <img src='/assets/images/calendario.svg' />
+                            <h2>Proximos Eventos</h2>
+                        </div>
+
+
+                        <div className='evento'>
+
+                            <div className='img-evento'>
+                                <img src='/assets/images/bairrosp.jpg' />
+                            </div>
+
+                            <div className='info-evento'>
+                                <h3>Feira de Artesanato</h3>
+
+                                <div className='info-evento2'>
+                                    <img src='/assets/images/calendario.svg' />
+                                    <p>Sab, 28 de dezembro - 10:00</p>
+                                </div>
+
+                                <div className='info-evento2'>
+                                    <img src='/assets/images/mapa3.svg' />
+                                    <p>Praça local</p>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                         <div className='evento'>
+
+                            <div className='img-evento'>
+                                <img src='/assets/images/bairrosp.jpg' />
+                            </div>
+
+                            <div className='info-evento'>
+                                <h3>Feira de Artesanato</h3>
+
+                                <div className='info-evento2'>
+                                    <img src='/assets/images/calendario.svg' />
+                                    <p>Sab, 28 de dezembro - 10:00</p>
+                                </div>
+
+                                <div className='info-evento2'>
+                                    <img src='/assets/images/mapa3.svg' />
+                                    <p>Praça local</p>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                         <div className='evento'>
+
+                            <div className='img-evento'>
+                                <img src='/assets/images/bairrosp.jpg' />
+                            </div>
+
+                            <div className='info-evento'>
+                                <h3>Feira de Artesanato</h3>
+
+                                <div className='info-evento2'>
+                                    <img src='/assets/images/calendario.svg' />
+                                    <p>Sab, 28 de dezembro - 10:00</p>
+                                </div>
+
+                                <div className='info-evento2'>
+                                    <img src='/assets/images/mapa3.svg' />
+                                    <p>Praça local</p>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+
+                </aside>
+
+
+
+
+
+
             </div>
+
         </div>
     );
 }

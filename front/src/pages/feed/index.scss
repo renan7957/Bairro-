@@ -169,33 +169,32 @@
   }
 
 
-  .card-aside {
-    width: 100%;
-    min-height: 300px;
-    padding: 25px 18px;
+  .aside .card-aside {
+    height: 300px;
+    min-height: 0;
+    padding: 20px 18px;
+    box-sizing: border-box;
+    background-color: white;
     border-radius: 18px;
-    background: white;
-
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
     align-items: flex-start;
-    
-
-    h2 {
-      color: #092aac;
-      font-size: 21px;
-      line-height: 1.4;
-      margin: 15px 0;
-    }
 
     .icone-grupo {
-      width: 100%;
+      margin-bottom: 15px;
 
       img {
-        width: 140px;
-        height: auto;
-        object-fit: contain;
+        width: 100px;
+        display: block;
       }
+    }
+
+    h2 {
+      margin: 0 0 15px 0;
+      color: #092aac;
+      font-size: 19px;
+      line-height: 1.4;
     }
 
     .imagem-bairro {
@@ -204,10 +203,8 @@
       justify-content: center;
 
       img {
-        width: 100%;
-        max-width: 220px;
-        height: auto;
-        object-fit: contain;
+        width: 155px;
+        display: block;
       }
     }
   }
@@ -222,6 +219,101 @@
     .aside {
       display: none;
     }
+  }
+
+
+
+
+
+
+
+
+  .aside2 {
+    width: 380px;
+    min-height: calc(100vh - 80px);
+    padding: 40px 25px;
+    border-left: 3px solid #8baeff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+
+
+
+  .card-eventos{
+    background-color: white;
+    width: 110%;
+    height: 60%;
+    border-radius: 14px;
+  }
+
+  .titulo-eventos{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 10px 10px;
+    align-items: center ;
+    border-top: 1.5px solid #8baeff;
+
+    img{
+      width: 35px;
+    }
+
+    h2{
+      font-size: 18px;
+    }
+  }
+
+  .evento{
+    height: 30%;
+    padding: 10px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-top: 1.5px solid #8baeff;
+  }
+
+
+  .img-evento{
+    align-self: center;
+
+    img{
+    width: 100px;
+    height: 90px;
+    border-radius: 10px;
+  }
+  }
+
+  .info-evento{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+
+    h3{
+      font-size: 16px;
+      color: #092aac;
+    }
+  }
+
+  .info-evento2{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+
+    img{
+       width: 20px;
+        height: 20px;
+        object-fit: contain;
+    }
+
+    p{
+      font-size: 14px;
+      font-weight:500;
+      color: #092aac;
+    }
+
   }
 
 }
