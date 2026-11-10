@@ -150,7 +150,7 @@ export default function Feed() {
                         </span>
 
                         <h2>
-                            Juntos fazemos
+                            Juntos fazemos <br/>
                             um bairro <br />
                             melhor!
                         </h2>
