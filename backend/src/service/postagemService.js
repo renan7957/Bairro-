@@ -2,12 +2,23 @@
 import * as db from '../repository/postagemRepository.js';
 
 // Criar publicação
-export async function criarPostagem(idConta, conteudo) {
+// Criar publicação
+export async function criarPostagem(idConta, conteudo, categoria) {
     if (!conteudo || !conteudo.trim()) {
         throw new Error('A publicação não pode estar vazia.');
     }
 
-    return db.savePostagem(idConta, conteudo.trim());
+    const categoriasPermitidas = ['todos', 'aviso', 'evento', 'duvida'];
+
+    if (!categoriasPermitidas.includes(categoria)) {
+        throw new Error('Categoria inválida.');
+    }
+
+    return db.savePostagem(
+        idConta,
+        conteudo.trim(),
+        categoria
+    );
 }
 
 // Listar publicações
@@ -23,4 +34,17 @@ export async function curtirPostagem(idConta, idPostagem) {
 // Descurtir publicação
 export async function descurtirPostagem(idConta, idPostagem) {
     return db.descurtirPostagem(idConta, idPostagem);
+}
+
+// Apagar publicação
+export async function apagarPostagem(idConta, idPostagem) {
+    if (!Number.isInteger(idPostagem) || idPostagem <= 0) {
+        throw new Error('Publicação inválida.');
+    }
+
+    const resultado = await db.apagarPostagem(idConta, idPostagem);
+
+    if (resultado === 0) {
+        throw new Error('Publicação não encontrada ou você não tem permissão para apagá-la.');
+    }
 }

@@ -331,10 +331,10 @@
 
   .postar2 {
     display: flex;
-    align-items: center;
     gap: 10px;
+    align-items: center;
 
-    img{
+    img {
       width: 50px;
     }
 
@@ -348,7 +348,7 @@
       outline: none;
     }
 
-    .button-img{
+    .button-img {
       background-color: #E8F0FF;
       border: none;
       border-radius: 10px;
@@ -358,17 +358,17 @@
       align-items: center;
       justify-content: center;
 
-      img{
+      img {
         width: 25px;
       }
 
-      &:hover{
+      &:hover {
         background-color: #d7e3f8;
         cursor: pointer;
       }
     }
 
-    .button-post{
+    .button-post {
       background-color: #244BFF;
       border: none;
       border-radius: 10px;
@@ -377,19 +377,17 @@
       display: flex;
       align-items: center;
       justify-content: center;
-    
-      img{
+
+      img {
         width: 20px;
       }
 
-      &:hover{
+      &:hover {
         cursor: pointer;
         background-color: #2243d6;
       }
     }
-
   }
-
 
   .publicacoes {
     width: 100%;
@@ -507,6 +505,53 @@
 
   }
 
+  .categorias {
+    display: flex;
+    gap: 12px;
+    padding: 10px;
+
+    button {
+      flex-shrink: 0;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid #dbe4ff;
+      background: #fff;
+      color: #3b5bdb;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    :hover {
+      background: #f3f6ff;
+      color: #3b5bdb;
+    }
+
+
+  }
+
+  button.ativo {
+    background-color: #244BFF;
+    color: white;
+    border-color: #244BFF;
+}
+
+  .selecionar-categoria {
+    height: 40px;
+    border: 1px solid #b7c4da;
+    border-radius: 10px;
+    padding: 0 8px;
+    background: white;
+    color: #092aac;
+    cursor: pointer;
+}
+
+.categoria-publicacao {
+    color: #244BFF;
+    font-size: 12px;
+    font-weight: bold;
+}
+
 
 
   /* ---------- Até 1280px: menu lateral só com ícones ---------- */
@@ -572,7 +617,9 @@
 
   /* ---------- Até 768px: layout de celular ---------- */
   @media (max-width: 768px) {
-    --altura-cabecalho: 64px;
+    & {
+      --altura-cabecalho: 64px;
+    }
 
     .cabecalho {
       justify-content: space-between;
@@ -740,5 +787,26 @@
     }
   }
 
+
+  .botao-excluir {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: 0.2s;
+
+    img {
+        width: 21px;
+        height: 21px;
+        display: block;
+    }
+
+    &:hover {
+        background-color: #ffe8e8;
+        transform: scale(1.1);
+    }
+}
 
 }

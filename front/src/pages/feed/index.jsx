@@ -6,11 +6,25 @@ export default function Feed() {
     const [postagens, setPostagens] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState('');
+    const [conteudo, setConteudo] = useState('');
+    const [filtro, setFiltro] = useState('todos');
+    const [publicando, setPublicando] = useState(false);
+
+
+
+
 
     function sair() {
         localStorage.removeItem('token');
         window.location.href = '/login';
     }
+
+
+
+
+
+
+
 
     // Buscar publicações
     async function buscarPostagens() {
@@ -43,6 +57,12 @@ export default function Feed() {
         buscarPostagens();
     }, []);
 
+
+
+
+
+
+
     // Curtir ou descurtir publicação
     async function alternarCurtida(postagem) {
         const token = localStorage.getItem('token');
@@ -71,6 +91,98 @@ export default function Feed() {
     }
 
 
+
+
+
+
+
+    // Apagar publicação
+    async function apagarPublicacao(idPostagem) {
+
+
+        const token = localStorage.getItem('token');
+
+        try {
+            const resposta = await fetch(
+                `http://localhost:5050/postagem/${idPostagem}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'x-access-token': token
+                    }
+                }
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || 'Não foi possível apagar a publicação.');
+            }
+
+
+
+
+
+
+            // Atualiza o feed sem precisar recarregar a página
+            setPostagens(postagens =>
+                postagens.filter(postagem => postagem.id !== idPostagem)
+            );
+
+        } catch (error) {
+            setErro(error.message);
+        }
+    }
+
+
+
+
+    //PUBLICAR os posts
+    async function publicar() {
+        const token = localStorage.getItem('token');
+
+        if (!conteudo.trim()) {
+            setErro('Digite alguma coisa antes de publicar.');
+            return;
+        }
+
+        setPublicando(true);
+        setErro('');
+
+        try {
+            const resposta = await fetch('http://localhost:5050/postagem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-token': token
+                },
+                body: JSON.stringify({
+                    conteudo: conteudo,
+                    categoria: filtro
+                })
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || 'Não foi possível publicar.');
+            }
+
+            setConteudo('');
+            await buscarPostagens();
+
+        } catch (error) {
+            setErro(error.message);
+        } finally {
+            setPublicando(false);
+        }
+    }
+
+    const postagensFiltradas = postagens.filter((postagem) => {
+        if (filtro === 'todos') return true;
+
+        return postagem.categoria === filtro;
+    });
 
 
     return (
@@ -167,32 +279,72 @@ export default function Feed() {
                 <main className="conteudo-feed">
 
 
-                    <section className='postar'>
+                    <section className="postar">
 
-                        <div className='postar2'>
-                            <img src='/assets/images/user22.svg'/>
-                            <input type="text" placeholder='o que voce esta pensando pra hoje ?' />
-                            
-                            <button className='button-img'>
-                                <img src='/assets/images/galeria.svg'/>
+                        <div className="postar2">
+
+                            <img src="/assets/images/user22.svg" alt="Usuário" />
+
+                            <input
+                                type="text"
+                                placeholder="O que você está pensando para hoje?"
+                                value={conteudo}
+                                onChange={(e) => setConteudo(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') publicar();
+                                }}
+                            />
+
+                            {/* Botão de imagem */}
+                            <button className="button-img">
+                                <img src="/assets/images/galeria.svg" alt="Adicionar imagem" />
                             </button>
 
-                            <button className='button-post'>
-                                <img src='/assets/images/enviar.svg'/>
+
+
+                            {/* Publicar */}
+                            <button
+                                className="button-post"
+                                onClick={publicar}
+                                disabled={publicando}
+                            >
+                                <img src="/assets/images/enviar.svg" alt="Publicar" />
                             </button>
 
                         </div>
 
-                        <div className='categorias'>
-                            <button>Todos</button>
-                            <button>Avisos</button>
-                            <button>Eventos</button>
-                            <button>Dúvidas</button>
+                        <div className="categorias">
+
+                            <button
+                                className={`chip ${filtro === 'todos' ? 'ativo' : ''}`}
+                                onClick={() => setFiltro('todos')}
+                            >
+                                Todos
+                            </button>
+
+                            <button
+                                className={`chip ${filtro === 'aviso' ? 'ativo' : ''}`}
+                                onClick={() => setFiltro('aviso')}
+                            >
+                                Avisos
+                            </button>
+
+                            <button
+                                className={`chip ${filtro === 'evento' ? 'ativo' : ''}`}
+                                onClick={() => setFiltro('evento')}
+                            >
+                                Eventos
+                            </button>
+
+                            <button
+                                className={`chip ${filtro === 'duvida' ? 'ativo' : ''}`}
+                                onClick={() => setFiltro('duvida')}
+                            >
+                                Dúvidas
+                            </button>
 
                         </div>
 
-
-                        
                     </section>
 
                     <section id="publicacoes" className="publicacoes">
@@ -207,13 +359,15 @@ export default function Feed() {
                             <p className="mensagem-erro">{erro}</p>
                         )}
 
-                        {!carregando && !erro && postagens.length === 0 && (
+                        {!carregando && !erro && postagensFiltradas.length === 0 && (
                             <p className="sem-publicacoes">
-                                Ainda não existem publicações.
+                                {filtro === 'todos'
+                                    ? 'Ainda não existem publicações.'
+                                    : 'Ainda não existem publicações nesta categoria.'}
                             </p>
                         )}
 
-                        {postagens.map((postagem) => (
+                        {postagensFiltradas.map((postagem) => (
 
                             <article
                                 className="card-publicacao"
@@ -233,11 +387,30 @@ export default function Feed() {
 
                                         <h3>{postagem.nome}</h3>
 
+                                        <span className="categoria-publicacao">
+                                            {postagem.categoria === 'aviso' && 'Aviso'}
+                                            {postagem.categoria === 'evento' && 'Evento'}
+                                            {postagem.categoria === 'duvida' && 'Dúvida'}
+                                        </span>
+
                                         <span>
                                             {new Date(postagem.data_postagem).toLocaleString('pt-BR')}
                                         </span>
 
                                     </div>
+
+
+                                    {/* BOTÃO DE EXCLUIR */}
+                                    {Number(postagem.minha) === 1 && (
+                                        <button
+                                            className="botao-excluir"
+                                            onClick={() => apagarPublicacao(postagem.id)}
+                                            title="Apagar publicação"
+                                        >
+                                            <img src="/assets/images/lixeira.svg" alt="Apagar publicação" />
+                                        </button>
+                                    )}
+
 
                                 </div>
 

@@ -6,12 +6,17 @@ import { getAuthentication } from '../utils/jwt.js';
 const endpoints = Router();
 
 // Criar publicação
+// Criar publicação
 endpoints.post('/postagem', getAuthentication(), async (req, resp) => {
     try {
-        const { conteudo } = req.body;
+        const { conteudo, categoria } = req.body;
         const idConta = req.user.id;
 
-        const id = await service.criarPostagem(idConta, conteudo);
+        const id = await service.criarPostagem(
+            idConta,
+            conteudo,
+            categoria
+        );
 
         resp.status(201).send({ id });
 
@@ -61,6 +66,25 @@ endpoints.delete('/postagem/:id/curtida', getAuthentication(), async (req, resp)
 
     } catch (err) {
         resp.status(400).send({ erro: err.message });
+    }
+});
+
+// Apagar publicação
+endpoints.delete('/postagem/:id', getAuthentication(), async (req, resp) => {
+    try {
+        const idConta = req.user.id;
+        const idPostagem = Number(req.params.id);
+
+        await service.apagarPostagem(idConta, idPostagem);
+
+        resp.status(200).send({
+            mensagem: 'Publicação apagada com sucesso!'
+        });
+
+    } catch (err) {
+        const status = err.message.includes('não encontrada') ? 404 : 400;
+
+        resp.status(status).send({ erro: err.message });
     }
 });
 
