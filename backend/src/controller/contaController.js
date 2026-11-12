@@ -14,10 +14,12 @@ endpoints.post('/conta', async (req, resp) => {
 
         resp.status(201).send({ token });
     } catch (err) {
-        resp.status(400).send({
-            erro: err.message
-        });
-    }
+    console.error('ERRO AO CADASTRAR:', err);
+
+    resp.status(400).send({
+        erro: err.message
+    });
+}
 });
 
 endpoints.post('/conta/login', async (req, resp) => {
@@ -29,6 +31,27 @@ endpoints.post('/conta/login', async (req, resp) => {
         resp.send({ token });
     } catch (err) {
         resp.status(401).send({
+            erro: err.message
+        });
+    }
+});
+
+endpoints.post('/conta', async (req, resp) => {
+    try {
+        console.log('DADOS RECEBIDOS:', req.body);
+
+        const conta = req.body;
+
+        await service.saveConta(conta);
+
+        const token = await service.login(conta.email, conta.senha);
+
+        resp.status(201).send({ token });
+
+    } catch (err) {
+        console.error('ERRO AO CADASTRAR:', err);
+
+        resp.status(400).send({
             erro: err.message
         });
     }

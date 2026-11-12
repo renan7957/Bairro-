@@ -166,6 +166,12 @@ export default function Feed() {
                 {/* Conteúdo principal */}
                 <main className="conteudo-feed">
 
+
+                    <section className='po'>
+                         <h1>o que voce esta pensando pra hoje ?</h1>
+                         <input type="text" />
+                         </section>
+
                     <section id="publicacoes" className="publicacoes">
 
                         <h1>Publicações do bairro</h1>
