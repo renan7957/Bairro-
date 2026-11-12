@@ -150,7 +150,7 @@ export default function Feed() {
                         </span>
 
                         <h2>
-                            Juntos fazemos <br/>
+                            Juntos fazemos <br />
                             um bairro <br />
                             melhor!
                         </h2>
@@ -167,10 +167,33 @@ export default function Feed() {
                 <main className="conteudo-feed">
 
 
-                    <section className='po'>
-                         <h1>o que voce esta pensando pra hoje ?</h1>
-                         <input type="text" />
-                         </section>
+                    <section className='postar'>
+
+                        <div className='postar2'>
+                            <img src='/assets/images/user22.svg'/>
+                            <input type="text" placeholder='o que voce esta pensando pra hoje ?' />
+                            
+                            <button className='button-img'>
+                                <img src='/assets/images/galeria.svg'/>
+                            </button>
+
+                            <button className='button-post'>
+                                <img src='/assets/images/enviar.svg'/>
+                            </button>
+
+                        </div>
+
+                        <div className='categorias'>
+                            <button>Todos</button>
+                            <button>Avisos</button>
+                            <button>Eventos</button>
+                            <button>Dúvidas</button>
+
+                        </div>
+
+
+                        
+                    </section>
 
                     <section id="publicacoes" className="publicacoes">
 

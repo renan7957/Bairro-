@@ -4,7 +4,8 @@
   font-family: Arial, sans-serif;
   background-color: #E8F0FF;
   min-height: 100vh;
-  overflow-x: clip; /* clip (e não hidden) para não quebrar o position: sticky */
+  overflow-x: clip;
+  /* clip (e não hidden) para não quebrar o position: sticky */
 
   img {
     max-width: 100%;
@@ -328,10 +329,67 @@
 
   /* ================= PUBLICAÇÕES ================= */
 
-    section.po h1 {
-      font-size: 30px;
-      color: #092aac;
+  .postar2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    img{
+      width: 50px;
     }
+
+    input {
+      border: 2px solid #b7c4da;
+      border-radius: 10px;
+      padding: 10px 13px;
+      width: 75%;
+      height: 40px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .button-img{
+      background-color: #E8F0FF;
+      border: none;
+      border-radius: 10px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img{
+        width: 25px;
+      }
+
+      &:hover{
+        background-color: #d7e3f8;
+        cursor: pointer;
+      }
+    }
+
+    .button-post{
+      background-color: #244BFF;
+      border: none;
+      border-radius: 10px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    
+      img{
+        width: 20px;
+      }
+
+      &:hover{
+        cursor: pointer;
+        background-color: #2243d6;
+      }
+    }
+
+  }
+
 
   .publicacoes {
     width: 100%;
@@ -548,7 +606,8 @@
 
     .layout-feed {
       min-height: auto;
-      padding-bottom: 70px; /* espaço para a barra de baixo */
+      padding-bottom: 70px;
+      /* espaço para a barra de baixo */
     }
 
     .conteudo-feed {
@@ -680,4 +739,6 @@
       display: none;
     }
   }
+
+
 }
