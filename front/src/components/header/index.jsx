@@ -4,7 +4,7 @@ export default function Cabecalho({ onSair }) {
     return (
         <header className="cabecalho">
 
-            <a href="/inicio" className="logo">
+            <a href="/feed" className="logo">
                 <img
                     src="/assets/images/logo3.png"
                     alt="Bairro+ — Juntos por um bairro mais conectado"

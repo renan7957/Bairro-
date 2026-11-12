@@ -13,7 +13,6 @@ export default function Feed() {
 
 
 
-
     function sair() {
         localStorage.removeItem('token');
         window.location.href = '/login';
