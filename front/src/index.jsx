@@ -21,9 +21,9 @@ root.render(
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<CriarConta />} />
+          <Route path="/feed" element={<Feed />} />
 
         <Route element={<RotaProtegida />}>
-          <Route path="/feed" element={<Feed />} />
         </Route>
       </Routes>
     </BrowserRouter>
