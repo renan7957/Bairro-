@@ -9,6 +9,8 @@ import CriarConta from './pages/criar_conta/index.jsx';
 import './pages/criar_conta/index.scss';
 import Feed from './pages/feed/index.jsx';
 import './pages/feed/index.scss';
+import Comunidade from './pages/comunidade/index.jsx';
+import './pages/comunidade/index.scss';
 import RotaProtegida from './components/rotaprotegida.jsx';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -21,9 +23,10 @@ root.render(
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<CriarConta />} />
-          <Route path="/feed" element={<Feed />} />
 
         <Route element={<RotaProtegida />}>
+          <Route path="/feed" element={<Feed />} />
+          <Route path="/comunidade" element={<Comunidade />} />
         </Route>
       </Routes>
     </BrowserRouter>
