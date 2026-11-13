@@ -24,8 +24,8 @@
   gap: 20px;
   height: var(--feed-topbar-height);
   padding: 0 clamp(16px, 4.4vw, 48px);
-  border-top: 2px solid #86a5ee;
-  border-bottom: 1px solid #c8d6f5;
+  border-top: 0px solid #86a5ee;
+  border-bottom: 0px solid #c8d6f5;
   background: #eef3ff;
 }
 
@@ -78,7 +78,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 12px;
+  gap: 5px;
 }
 
 .header-icon-button {
@@ -820,12 +820,13 @@
   margin: 9px 0 0 41px;
   align-items: center;
   gap: 7px;
-  padding: 0 10px;
-  border: 1px solid #d5e0f9;
-  border-radius: 9px;
+  padding: 10 15px;
+  border: 10px solid #ffffff;
+  border-radius: 19px;
   color: #66769a;
   font-size: 11px;
   white-space: nowrap;
+ 
   }}
 
 /* Aumenta a leitura e a área de toque dos elementos do feed. */
@@ -834,7 +835,7 @@
   --feed-nav-height: 58px;
 }
 
-.feed-logo img { width: 166px; max-height: 52px; }
+.feed-logo img { width: 166px; max-height: 102px; }
 .feed-search { height: 40px; }
 .feed-search input,
 .composer-form input { font-size: 14px; }
@@ -843,8 +844,8 @@
 .composer-form input { height: 42px; }
 .composer-toolbar { margin-top: 12px; }
 .composer-tool { min-height: 36px; padding: 0 12px; font-size: 13px; }
-.compose-category { min-height: 42px; font-size: 14px; }
-.compose-category select { width: 160px; }
+.compose-category { min-height: 39px; font-size: 14px; }
+.compose-category select { width: 100px; }
 .publish-button { min-height: 38px; padding: 0 16px; font-size: 13px; }
 .feed-stream { width: min(100%, 860px); gap: 20px; }
 .posts-heading h1 { font-size: 19px; }
@@ -866,6 +867,11 @@
 .sidebar-card-heading > a { font-size: 12px; }
 .event-item { min-height: 84px; gap: 10px; padding: 8px 10px; }
 .event-image { width: 78px; height: 64px; flex-basis: 78px; }
+.preview img {width: 100%; height: 100%; object-fit: cover;}
+.preview { width: 300px; height: 200px; border: 2px solid #092AAC;border-radius: 10px;}
+.btn-sair { color: rgb(9, 32, 233); border: none; border-radius: 8px;}
+button .btn-sair:hover { background-color: rgb }
+.container { display: flex;flex-direction: column; gap: 15px;}
 .event-details strong { font-size: 13px; }
 .event-details > span { font-size: 12px; }
 .event-arrow { width: 30px; height: 30px; flex-basis: 30px; }

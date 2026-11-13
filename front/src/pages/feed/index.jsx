@@ -65,6 +65,10 @@ function Icon({ name, size = 18 }) {
             return <svg {...common}><path d="M5 12h14M13 5l7 7-7 7" /></svg>;
         case 'plus':
             return <svg {...common}><path d="M12 5v14M5 12h14" /></svg>;
+        case 'user':
+            return <svg {...common}><circle cx="12" cy="8" r="3.5" /><path d="M5 20c0-3.8 3.1-6 7-6s7 2.2 7 6" /></svg>;
+        case 'logout':
+            return <svg {...common}><path d="M10 17l5-5-5-5" /><path d="M15 12H3" /><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6" /></svg>;
         default:
             return null;
     }
@@ -90,10 +94,15 @@ export default function Feed() {
     const [filtro, setFiltro] = useState('todos');
     const [categoriaNova, setCategoriaNova] = useState('aviso');
     const [publicando, setPublicando] = useState(false);
+    const [imagem, setImagem] = useState(null);
 
     function sair() {
         localStorage.removeItem('token');
         window.location.href = '/login';
+    }
+
+        function adicionarFoto(e) {
+        setImagem(URL.createObjectURL(e.target.files[0]));
     }
 
     async function buscarPostagens() {
@@ -231,15 +240,14 @@ export default function Feed() {
                     <button className="header-icon-button" type="button" aria-label="Notificações">
                         <Icon name="bell" size={22} />
                     </button>
-                    <button
-                        className="header-icon-button"
-                        type="button"
-                        aria-label="Sair da conta"
-                        title="Sair da conta"
-                        onClick={sair}
-                    >
-                        <Icon name="person" size={22} />
-                    </button>
+
+           
+                        
+                      <button className="header-icon-button" onClick={sair}
+                      aria-label="logout">
+                        <Icon name="logout" size={22} />
+                      </button>
+                 
                 </div>
             </header>
 
@@ -259,9 +267,52 @@ export default function Feed() {
                                         placeholder="O que você quer compartilhar com o bairro?"
                                         aria-label="Conteúdo da publicação"
                                     />
-                                </form>
+                                                </form>
+
+                                                <div className="preview">
+                                {imagem && (
+                                    <img src={imagem} alt="Foto selecionada" />
+                                    )}
+                                    </div>
+
                             </div>
 
+                     
+
+                            <div className="composer-toolbar">
+                                <div className="composer-tools" aria-label="Opções de publicação">
+                                    <button className="composer-tool" type="button" disabled title="Disponível em breve">
+                                        <Icon name="camera" size={16} />
+                                                                        <div>
+
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                id="foto"
+                                                onChange={adicionarFoto}
+                                                hidden
+                                            />
+
+                                            <label htmlFor="foto" className="btn-foto">
+                                                foto
+                                            </label>
+
+                                            {imagem && (
+                                                <img src={imagem} alt="Foto selecionada" />
+                                            )}
+
+                                        </div>
+                                    </button>
+                                    <button className="composer-tool" type="button" disabled title="Disponível em breve">
+                                        <Icon name="video" size={16} />
+                                        <span>Vídeo</span>
+                                    </button>
+                                    <button className="composer-tool" type="button" disabled title="Disponível em breve">
+                                        <Icon name="pin" size={16} />
+                                        <span>Localização</span>
+                                    </button>
+
+                                    
                             <label className="compose-category">
                                 <span>Categoria</span>
                                 <select
@@ -275,20 +326,6 @@ export default function Feed() {
                                 </select>
                             </label>
 
-                            <div className="composer-toolbar">
-                                <div className="composer-tools" aria-label="Opções de publicação">
-                                    <button className="composer-tool" type="button" disabled title="Disponível em breve">
-                                        <Icon name="camera" size={16} />
-                                        <span>Foto</span>
-                                    </button>
-                                    <button className="composer-tool" type="button" disabled title="Disponível em breve">
-                                        <Icon name="video" size={16} />
-                                        <span>Vídeo</span>
-                                    </button>
-                                    <button className="composer-tool" type="button" disabled title="Disponível em breve">
-                                        <Icon name="pin" size={16} />
-                                        <span>Localização</span>
-                                    </button>
                                 </div>
 
                                 <button
@@ -446,6 +483,11 @@ export default function Feed() {
                 <a className="bottom-nav-item" href="/mapa">
                     <Icon name="map" size={19} />
                     <span>Mapa</span>
+                </a>
+                
+                <a className="bottom-nav-item" href="/conta">
+                    <Icon name="user" size={19} />
+                    <span>Conta</span>
                 </a>
             </nav>
         </div>
