@@ -262,6 +262,19 @@ export default function Feed() {
                                 </form>
                             </div>
 
+                            <label className="compose-category">
+                                <span>Categoria</span>
+                                <select
+                                    value={categoriaNova}
+                                    onChange={(event) => setCategoriaNova(event.target.value)}
+                                    aria-label="Categoria da publicação"
+                                >
+                                    <option value="aviso">Aviso</option>
+                                    <option value="evento">Evento</option>
+                                    <option value="duvida">Dúvida</option>
+                                </select>
+                            </label>
+
                             <div className="composer-toolbar">
                                 <div className="composer-tools" aria-label="Opções de publicação">
                                     <button className="composer-tool" type="button" disabled title="Disponível em breve">
@@ -276,18 +289,6 @@ export default function Feed() {
                                         <Icon name="pin" size={16} />
                                         <span>Localização</span>
                                     </button>
-                                    <label className="compose-category">
-                                        <span>Categoria</span>
-                                        <select
-                                            value={categoriaNova}
-                                            onChange={(event) => setCategoriaNova(event.target.value)}
-                                            aria-label="Categoria da publicação"
-                                        >
-                                            <option value="aviso">Aviso</option>
-                                            <option value="evento">Evento</option>
-                                            <option value="duvida">Dúvida</option>
-                                        </select>
-                                    </label>
                                 </div>
 
                                 <button

@@ -9,15 +9,20 @@ async function getColunasPostagem() {
 // Salvar publicação
 export async function savePostagem(idConta, conteudo, categoria, titulo = '', endereco = '', descricao = '', foto = '', dataEvento = '') {
     const colunas = await getColunasPostagem();
-    const campos = ['id_conta', 'categoria'];
-    const valores = [idConta, categoria];
+    const campos = ['id_conta'];
+    const valores = [idConta];
+    if (colunas.has('categoria')) {
+        campos.push('categoria');
+        valores.push(categoria);
+    }
     const temCamposDetalhados = ['titulo', 'endereco', 'descricao', 'foto']
         .some((campo) => colunas.has(campo));
-    const conteudoArmazenado = temCamposDetalhados
-        ? (dataEvento && !colunas.has('data_evento')
-            ? JSON.stringify({ titulo, endereco, descricao: descricao || conteudo, foto, data_evento: dataEvento })
-            : conteudo)
-        : JSON.stringify({ titulo, endereco, descricao: descricao || conteudo, foto, data_evento: dataEvento });
+    const precisaSerializar = !temCamposDetalhados
+        || (!colunas.has('categoria') && Boolean(categoria))
+        || (dataEvento && !colunas.has('data_evento'));
+    const conteudoArmazenado = precisaSerializar
+        ? JSON.stringify({ conteudo, categoria, titulo, endereco, descricao: descricao || conteudo, foto, data_evento: dataEvento })
+        : conteudo;
 
     if (colunas.has('titulo')) {
         campos.push('titulo');
@@ -65,7 +70,6 @@ export async function getPostagens(idConta) {
     const campos = [
         'p.id',
         'p.conteudo',
-        'p.categoria',
         'p.data_postagem',
         'c.id as id_conta',
         'c.nome',
@@ -73,6 +77,8 @@ export async function getPostagens(idConta) {
         '(select count(*) from curtida l where l.id_postagem = p.id) as total_curtidas',
         '(select count(*) from curtida l where l.id_postagem = p.id and l.id_conta = ?) as curtiu'
     ];
+
+    campos.push(colunas.has('categoria') ? 'p.categoria' : "'' as categoria");
 
     if (colunas.has('titulo')) campos.push('p.titulo');
     if (colunas.has('endereco')) campos.push('p.endereco');
@@ -109,7 +115,8 @@ export async function getPostagens(idConta) {
                     publicacao.descricao = publicacao.descricao || json.descricao || '';
                     publicacao.foto = publicacao.foto || json.foto || '';
                     publicacao.data_evento = publicacao.data_evento || json.data_evento || null;
-                    publicacao.conteudo = publicacao.descricao || json.descricao || json.titulo || publicacao.conteudo;
+                    publicacao.categoria = publicacao.categoria || json.categoria || '';
+                    publicacao.conteudo = json.conteudo || publicacao.descricao || json.descricao || json.titulo || publicacao.conteudo;
                 }
             } catch (error) {
                 publicacao.titulo = publicacao.titulo || '';

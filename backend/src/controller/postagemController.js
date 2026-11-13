@@ -9,6 +9,8 @@ const endpoints = Router();
 
 // Criar publicação
 endpoints.post('/postagem', getAuthentication(), (req, resp, next) => {
+    // Garante que existe um objeto antes de qualquer parser tratar o corpo.
+    req.body = req.body || {};
     uploadFoto.single('foto')(req, resp, (err) => {
         if (err) {
             const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
@@ -16,11 +18,13 @@ endpoints.post('/postagem', getAuthentication(), (req, resp, next) => {
             return;
         }
 
+        // Multipart uploads may leave body unset when the request has no fields.
+        req.body = req.body || {};
         next();
     });
 }, async (req, resp) => {
     try {
-        const { conteudo, categoria, titulo, endereco, descricao, dataEvento } = req.body;
+        const { conteudo, categoria, titulo, endereco, descricao, dataEvento } = req.body || {};
         const idConta = req.user.id;
         const foto = req.file ? `/uploads/${req.file.filename}` : '';
 
