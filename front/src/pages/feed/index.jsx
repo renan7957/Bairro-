@@ -1,6 +1,86 @@
-
 import './index.scss';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import Publicaçoes from '../../components/publicaçoes/publicaçoes';
+
+const filtros = [
+    { value: 'todos', label: 'Todos' },
+    { value: 'aviso', label: 'Avisos' },
+    { value: 'evento', label: 'Eventos' },
+    { value: 'duvida', label: 'Dúvidas' }   
+];
+
+const avisos = [
+    { icone: 'water', titulo: 'Manutenção no fornecimento de água', detalhe: 'Hoje · 8h às 14h' },
+    { icone: 'bolt', titulo: 'Interrupção de energia (manutenção)', detalhe: 'Dia 02/10 · 9h às 10h' },
+    { icone: 'trash', titulo: 'Coleta de lixo reciclável', detalhe: 'Hoje · Bairro todo' }
+];
+
+function Icon({ name, size = 18 }) {
+    const common = {
+        width: size,
+        height: size,
+        viewBox: '0 0 24 24',
+        fill: 'none',
+        stroke: 'currentColor',
+        strokeWidth: 1.7,
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round',
+        'aria-hidden': true
+    };
+
+    switch (name) {
+        case 'search':
+            return <svg {...common}><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 4.5 4.5" /></svg>;
+        case 'bell':
+            return <svg {...common}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></svg>;
+        case 'person':
+            return <svg {...common}><circle cx="12" cy="12" r="9.5" /><circle cx="12" cy="9" r="3" /><path d="M6.5 19a5.7 5.7 0 0 1 11 0" /></svg>;
+        case 'camera':
+            return <svg {...common}><path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z" /><circle cx="12" cy="12.5" r="3.2" /></svg>;
+        case 'video':
+            return <svg {...common}><rect x="3" y="6" width="13" height="12" rx="2" /><path d="m16 10 5-3v10l-5-3" /></svg>;
+        case 'pin':
+            return <svg {...common}><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>;
+        case 'calendar':
+            return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18M7 14h3M7 17h3M14 14h3" /></svg>;
+        case 'megaphone':
+            return <svg {...common}><path d="m3 11 15-6v14L3 13v-2Z" /><path d="M7 14.5 9 21h4l-2-5.1M18 10h2a2 2 0 0 1 0 4h-2" /></svg>;
+        case 'water':
+            return <svg {...common}><path d="M12 22a7 7 0 0 0 7-7c0-4-7-13-7-13S5 11 5 15a7 7 0 0 0 7 7Z" /><path d="M9 16a3 3 0 0 0 3 3" /></svg>;
+        case 'bolt':
+            return <svg {...common}><path d="M13 2 4 14h7l-1 8 10-13h-7l1-7Z" /></svg>;
+        case 'trash':
+            return <svg {...common}><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6" /></svg>;
+        case 'home':
+            return <svg {...common}><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z" /></svg>;
+        case 'people':
+            return <svg {...common}><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M17 14a5 5 0 0 1 4 5" /></svg>;
+        case 'map':
+            return <svg {...common}><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z" /><path d="M9 3v15M15 6v15" /></svg>;
+        case 'comment':
+            return <svg {...common}><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z" /></svg>;
+        case 'share':
+            return <svg {...common}><path d="M12 16V3M7 8l5-5 5 5M5 13v7h14v-7" /></svg>;
+        case 'arrow':
+            return <svg {...common}><path d="M5 12h14M13 5l7 7-7 7" /></svg>;
+        case 'plus':
+            return <svg {...common}><path d="M12 5v14M5 12h14" /></svg>;
+        default:
+            return null;
+    }
+}
+
+function formatarData(data) {
+    const dataPostagem = new Date(data);
+    if (Number.isNaN(dataPostagem.getTime())) return 'Agora · Comunidade';
+
+    return dataPostagem.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+    }) + ' · Comunidade';
+}
 
 export default function Feed() {
     const [postagens, setPostagens] = useState([]);
@@ -8,43 +88,30 @@ export default function Feed() {
     const [erro, setErro] = useState('');
     const [conteudo, setConteudo] = useState('');
     const [filtro, setFiltro] = useState('todos');
+    const [categoriaNova, setCategoriaNova] = useState('aviso');
     const [publicando, setPublicando] = useState(false);
-
-
-
 
     function sair() {
         localStorage.removeItem('token');
         window.location.href = '/login';
     }
 
-
-
-
-
-
-
-
-    // Buscar publicações
     async function buscarPostagens() {
         const token = localStorage.getItem('token');
 
         try {
             const resposta = await fetch('http://localhost:5050/postagem', {
                 method: 'GET',
-                headers: {
-                    'x-access-token': token
-                }
+                headers: { 'x-access-token': token }
             });
-
             const dados = await resposta.json();
 
             if (!resposta.ok) {
-                throw new Error('Não foi possível carregar as publicações.');
+                throw new Error(dados.erro || 'Não foi possível carregar as publicações.');
             }
 
             setPostagens(dados);
-
+            setErro('');
         } catch (error) {
             setErro(error.message);
         } finally {
@@ -56,25 +123,16 @@ export default function Feed() {
         buscarPostagens();
     }, []);
 
-
-
-
-
-
-
-    // Curtir ou descurtir publicação
     async function alternarCurtida(postagem) {
         const token = localStorage.getItem('token');
         const curtiu = Number(postagem.curtiu) === 1;
 
         try {
             const resposta = await fetch(
-                `http://localhost:5050/postagem/${postagem.id}/curtida`,
+                'http://localhost:5050/postagem/' + postagem.id + '/curtida',
                 {
                     method: curtiu ? 'DELETE' : 'POST',
-                    headers: {
-                        'x-access-token': token
-                    }
+                    headers: { 'x-access-token': token }
                 }
             );
 
@@ -83,64 +141,39 @@ export default function Feed() {
             }
 
             await buscarPostagens();
-
         } catch (error) {
             setErro(error.message);
         }
     }
 
-
-
-
-
-
-
-    // Apagar publicação
     async function apagarPublicacao(idPostagem) {
-
-
         const token = localStorage.getItem('token');
 
         try {
             const resposta = await fetch(
-                `http://localhost:5050/postagem/${idPostagem}`,
+                'http://localhost:5050/postagem/' + idPostagem,
                 {
                     method: 'DELETE',
-                    headers: {
-                        'x-access-token': token
-                    }
+                    headers: { 'x-access-token': token }
                 }
             );
-
             const dados = await resposta.json();
 
             if (!resposta.ok) {
                 throw new Error(dados.erro || 'Não foi possível apagar a publicação.');
             }
 
-
-
-
-
-
-            // Atualiza o feed sem precisar recarregar a página
-            setPostagens(postagens =>
-                postagens.filter(postagem => postagem.id !== idPostagem)
-            );
-
+            setPostagens((lista) => lista.filter((postagem) => postagem.id !== idPostagem));
         } catch (error) {
             setErro(error.message);
         }
     }
 
+    async function publicar(event) {
+        event.preventDefault();
+        const texto = conteudo.trim();
 
-
-
-    //PUBLICAR os posts
-    async function publicar() {
-        const token = localStorage.getItem('token');
-
-        if (!conteudo.trim()) {
+        if (!texto) {
             setErro('Digite alguma coisa antes de publicar.');
             return;
         }
@@ -153,14 +186,13 @@ export default function Feed() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-access-token': token
+                    'x-access-token': localStorage.getItem('token')
                 },
                 body: JSON.stringify({
-                    conteudo: conteudo,
-                    categoria: filtro
+                    conteudo: texto,
+                    categoria: categoriaNova
                 })
             });
-
             const dados = await resposta.json();
 
             if (!resposta.ok) {
@@ -169,7 +201,6 @@ export default function Feed() {
 
             setConteudo('');
             await buscarPostagens();
-
         } catch (error) {
             setErro(error.message);
         } finally {
@@ -177,376 +208,245 @@ export default function Feed() {
         }
     }
 
-    const postagensFiltradas = postagens.filter((postagem) => {
-        if (filtro === 'todos') return true;
-
-        return postagem.categoria === filtro;
-    });
-
+    const postagensFiltradas = postagens.filter((postagem) => (
+        filtro === 'todos' || postagem.categoria === filtro
+    ));
 
     return (
-
-
         <div className="pag-feed">
-
-            {/* Cabeçalho */}
-            <header className="cabecalho">
-
-                <a href="/inicio" className="logo">
+            <header className="feed-topbar">
+                <a href="/feed" className="feed-logo" aria-label="Bairro+, início">
                     <img
                         src="/assets/images/logo3.png"
-                        alt="Bairro+ — Juntos por um bairro mais conectado!"
+                        alt="Bairro+ — Juntos por um bairro mais conectado"
                     />
                 </a>
 
-                <div className="pesquisa">
-                    <img src="/assets/images/search.svg" alt="" />
-                    <input type="text" placeholder="Pesquise" />
-                </div>
+                <label className="feed-search">
+                    <Icon name="search" size={18} />
+                    <input type="search" placeholder="Pesquisar no bairro..." />
+                </label>
 
-                <nav className="menu">
-                    <a href="/inicio">Início</a>
-                    <a href="#publicacoes">Publicações</a>
-                    <a href="#contato">Contato</a>
-
+                <div className="feed-header-actions">
+                    <button className="header-icon-button" type="button" aria-label="Notificações">
+                        <Icon name="bell" size={22} />
+                    </button>
                     <button
-                        className="botao-sair"
+                        className="header-icon-button"
+                        type="button"
+                        aria-label="Sair da conta"
+                        title="Sair da conta"
                         onClick={sair}
                     >
-                        Sair
+                        <Icon name="person" size={22} />
                     </button>
-                </nav>
-
+                </div>
             </header>
 
-            {/* Layout do feed */}
-            <div className="layout-feed">
+            <div className="feed-layout">
+                <main className="feed-main">
+                    <div className="feed-stream">
+                        <section className="composer-card" aria-label="Criar publicação">
+                            <div className="composer-input-row">
+                                <div className="avatar-placeholder">
+                                    <Icon name="person" size={23} />
+                                </div>
+                                <form id="composer-form" className="composer-form" onSubmit={publicar}>
+                                    <input
+                                        type="text"
+                                        value={conteudo}
+                                        onChange={(event) => setConteudo(event.target.value)}
+                                        placeholder="O que você quer compartilhar com o bairro?"
+                                        aria-label="Conteúdo da publicação"
+                                    />
+                                </form>
+                            </div>
 
-                {/* Aside da esquerda */}
-                <aside
-                    className="aside"
-                    style={{
-                        background: "url('/assets/images/fundo4.png') center / cover no-repeat"
-                    }}
-                >
-
-                    <nav className="menu-lateral">
-
-                        <a href="/feed" className="ativo">
-                            <img src="/assets/images/house (4).svg" alt="" />
-                            Início
-                        </a>
-
-                        <a href="/mapa">
-                            <img src="/assets/images/mapa3.svg" alt="" />
-                            Mapa
-                        </a>
-
-                        <a href="/comunidade">
-                            <img src="/assets/images/users2.svg" alt="" />
-                            Comunidade
-                        </a>
-
-                        <a href="/configuracoes">
-                            <img src="/assets/images/settings.svg" alt="" />
-                            Configurações
-                        </a>
-
-                    </nav>
-
-                    <div className="card-aside">
-
-                        <span className="icone-grupo">
-                            <img src="/assets/images/grupo.png" alt="" />
-                        </span>
-
-                        <h2>
-                            Juntos fazemos <br />
-                            um bairro <br />
-                            melhor!
-                        </h2>
-
-                        <div className="imagem-bairro">
-                            <img src="/assets/images/casinha2.png" alt="" />
-                        </div>
-
-                    </div>
-
-                </aside>
-
-                {/* Conteúdo principal */}
-                <main className="conteudo-feed">
-
-
-                    <section className="postar">
-
-                        <div className="postar2">
-
-                            <img src="/assets/images/user22.svg" alt="Usuário" />
-
-                            <input
-                                type="text"
-                                placeholder="O que você está pensando para hoje?"
-                                value={conteudo}
-                                onChange={(e) => setConteudo(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') publicar();
-                                }}
-                            />
-
-                            {/* Botão de imagem */}
-                            <button className="button-img">
-                                <img src="/assets/images/galeria.svg" alt="Adicionar imagem" />
-                            </button>
-
-
-
-                            {/* Publicar */}
-                            <button
-                                className="button-post"
-                                onClick={publicar}
-                                disabled={publicando}
-                            >
-                                <img src="/assets/images/enviar.svg" alt="Publicar" />
-                            </button>
-
-                        </div>
-
-                        <div className="categorias">
-
-                            <button
-                                className={`chip ${filtro === 'todos' ? 'ativo' : ''}`}
-                                onClick={() => setFiltro('todos')}
-                            >
-                                Todos
-                            </button>
-
-                            <button
-                                className={`chip ${filtro === 'aviso' ? 'ativo' : ''}`}
-                                onClick={() => setFiltro('aviso')}
-                            >
-                                Avisos
-                            </button>
-
-                            <button
-                                className={`chip ${filtro === 'evento' ? 'ativo' : ''}`}
-                                onClick={() => setFiltro('evento')}
-                            >
-                                Eventos
-                            </button>
-
-                            <button
-                                className={`chip ${filtro === 'duvida' ? 'ativo' : ''}`}
-                                onClick={() => setFiltro('duvida')}
-                            >
-                                Dúvidas
-                            </button>
-
-                        </div>
-
-                    </section>
-
-                    <section id="publicacoes" className="publicacoes">
-
-                        <h1>Publicações do bairro</h1>
-
-                        {carregando && (
-                            <p>Carregando publicações...</p>
-                        )}
-
-                        {erro && (
-                            <p className="mensagem-erro">{erro}</p>
-                        )}
-
-                        {!carregando && !erro && postagensFiltradas.length === 0 && (
-                            <p className="sem-publicacoes">
-                                {filtro === 'todos'
-                                    ? 'Ainda não existem publicações.'
-                                    : 'Ainda não existem publicações nesta categoria.'}
-                            </p>
-                        )}
-
-                        {postagensFiltradas.map((postagem) => (
-
-                            <article
-                                className="card-publicacao"
-                                key={postagem.id}
-                            >
-
-                                <div className="cabecalho-publicacao">
-
-                                    <div className="foto-perfil">
-                                        <img
-                                            src="/assets/images/user.svg"
-                                            alt="Foto do usuário"
-                                        />
-                                    </div>
-
-                                    <div className="info-publicacao">
-
-                                        <h3>{postagem.nome}</h3>
-
-                                        <span className="categoria-publicacao">
-                                            {postagem.categoria === 'aviso' && 'Aviso'}
-                                            {postagem.categoria === 'evento' && 'Evento'}
-                                            {postagem.categoria === 'duvida' && 'Dúvida'}
-                                        </span>
-
-                                        <span>
-                                            {new Date(postagem.data_postagem).toLocaleString('pt-BR')}
-                                        </span>
-
-                                    </div>
-
-
-                                    {/* BOTÃO DE EXCLUIR */}
-                                    {Number(postagem.minha) === 1 && (
-                                        <button
-                                            className="botao-excluir"
-                                            onClick={() => apagarPublicacao(postagem.id)}
-                                            title="Apagar publicação"
+                            <div className="composer-toolbar">
+                                <div className="composer-tools" aria-label="Opções de publicação">
+                                    <button className="composer-tool" type="button" disabled title="Disponível em breve">
+                                        <Icon name="camera" size={16} />
+                                        <span>Foto</span>
+                                    </button>
+                                    <button className="composer-tool" type="button" disabled title="Disponível em breve">
+                                        <Icon name="video" size={16} />
+                                        <span>Vídeo</span>
+                                    </button>
+                                    <button className="composer-tool" type="button" disabled title="Disponível em breve">
+                                        <Icon name="pin" size={16} />
+                                        <span>Localização</span>
+                                    </button>
+                                    <label className="compose-category">
+                                        <span>Categoria</span>
+                                        <select
+                                            value={categoriaNova}
+                                            onChange={(event) => setCategoriaNova(event.target.value)}
+                                            aria-label="Categoria da publicação"
                                         >
-                                            <img src="/assets/images/lixeira.svg" alt="Apagar publicação" />
-                                        </button>
-                                    )}
-
-
+                                            <option value="aviso">Aviso</option>
+                                            <option value="evento">Evento</option>
+                                            <option value="duvida">Dúvida</option>
+                                        </select>
+                                    </label>
                                 </div>
 
-                                <div className="texto-publicacao">
-                                    <p>{postagem.conteudo}</p>
-                                </div>
+                                <button
+                                    className="publish-button"
+                                    type="submit"
+                                    form="composer-form"
+                                    disabled={publicando}
+                                >
+                                    <Icon name="plus" size={16} />
+                                    <span>{publicando ? 'Publicando...' : 'Criar postagem'}</span>
+                                </button>
+                            </div>
 
-                                <div className="acoes-publicacao">
+                            {erro && <p className="feed-error" role="alert">{erro}</p>}
+                        </section>
 
-                                    <div className="acoes-publicacao">
+                        <section className="posts-section" id="publicaçoes">
+                            <div className="posts-heading">
+                                <h1>Publicações do bairro</h1>
+                                <span className="post-count">{postagensFiltradas.length}</span>
+                            </div>
 
-                                        <button
-                                            className="curtida"
-                                            onClick={() => alternarCurtida(postagem)}
-                                            aria-label="Curtir publicação"
-                                        >
-                                            <img
-                                                src={
-                                                    Number(postagem.curtiu) === 1
+                            <div className="feed-filters" aria-label="Filtrar publicações">
+                                {filtros.map((item) => (
+                                    <button
+                                        key={item.value}
+                                        className={'filter-chip ' + (filtro === item.value ? 'is-active' : '')}
+                                        type="button"
+                                        aria-pressed={filtro === item.value}
+                                        onClick={() => setFiltro(item.value)}
+                                    >
+                                        {item.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {carregando && <p className="empty-feed">Carregando publicações...</p>}
+
+                            {!carregando && erro && (
+                                <p className="empty-feed" role="alert">{erro}</p>
+                            )}
+
+                            {!carregando && !erro && postagensFiltradas.length === 0 && (
+                                <p className="empty-feed">
+                                    {filtro === 'todos'
+                                        ? 'Ainda não existem publicações.'
+                                        : 'Ainda não existem publicações nesta categoria.'}
+                                </p>
+                            )}
+
+                            <div className="post-list">
+                                {postagensFiltradas.map((postagem) => (
+                                    <article className="post-card" key={postagem.id}>
+                                        <div className="post-header">
+                                            <div className="avatar-placeholder post-avatar">
+                                                <Icon name="person" size={22} />
+                                            </div>
+                                            <div className="post-author">
+                                                <strong>{postagem.nome}</strong>
+                                                <span>{formatarData(postagem.data_postagem)}</span>
+                                            </div>
+
+                                            {Number(postagem.minha) === 1 && (
+                                                <button
+                                                    className="delete-post-button"
+                                                    type="button"
+                                                    onClick={() => apagarPublicacao(postagem.id)}
+                                                    aria-label="Apagar publicação"
+                                                    title="Apagar publicação"
+                                                >
+                                                    <Icon name="trash" size={18} />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        <div className="post-content">
+                                            {postagem.categoria && postagem.categoria !== 'todos' && (
+                                                <span className="post-category">
+                                                    {postagem.categoria === 'aviso' && 'Aviso'}
+                                                    {postagem.categoria === 'evento' && 'Evento'}
+                                                    {postagem.categoria === 'duvida' && 'Dúvida'}
+                                                </span>
+                                            )}
+                                            <p>{postagem.conteudo}</p>
+                                        </div>
+
+                                        <div className="post-actions">
+                                            <button
+                                                className={'like-action ' + (Number(postagem.curtiu) === 1 ? 'liked' : '')}
+                                                type="button"
+                                                onClick={() => alternarCurtida(postagem)}
+                                                aria-label={Number(postagem.curtiu) === 1 ? 'Descurtir publicação' : 'Curtir publicação'}
+                                            >
+                                                <img
+                                                    src={Number(postagem.curtiu) === 1
                                                         ? '/assets/images/curtidaSIM.svg'
-                                                        : '/assets/images/curtidaNAO.svg'
-                                                }
-                                                alt=""
-                                            />
-                                        </button>
-
-                                        <span>
-                                            {postagem.total_curtidas || 0} curtidas
-                                        </span>
-
-                                    </div>
-
-
-
-                                </div>
-
-                            </article>
-
-                        ))}
-
-                    </section>
-
+                                                        : '/assets/images/curtidaNAO.svg'}
+                                                    alt=""
+                                                />
+                                                <span>{postagem.total_curtidas || 0}</span>
+                                            </button>
+                                            <span className="post-action-static">
+                                                <Icon name="comment" size={17} />
+                                                Comentários
+                                            </span>
+                                            <span className="post-action-static">
+                                                <Icon name="share" size={17} />
+                                                Compartilhar
+                                            </span>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+                        </section>
+                    </div>
                 </main>
 
-                {/* Aside da direita */}
-                <aside
-                    className="aside2"
-                    style={{
-                        background: "url('/assets/images/fundo4.png') center / cover no-repeat"
-                    }}
-                >
+                <aside className="feed-sidebar">
+                    <section className="sidebar-card events-card">
+                        <Publicaçoes />
+                    </section>
 
-                    <div className="card-eventos">
-
-                        <div className="titulo-eventos">
-                            <img src="/assets/images/calendario.svg" alt="" />
-                            <h2>Próximos Eventos</h2>
+                    <section className="sidebar-card notices-card">
+                        <div className="sidebar-card-heading notices-heading">
+                            <div className="sidebar-title">
+                                <Icon name="megaphone" size={23} />
+                                <h2>Avisos recentes</h2>
+                                </div>
                         </div>
 
-                        <div className="evento">
-
-                            <div className="img-evento">
-                                <img src="/assets/images/bairrosp.jpg" alt="" />
-                            </div>
-
-                            <div className="info-evento">
-
-                                <h3>Feira de Artesanato</h3>
-
-                                <div className="info-evento2">
-                                    <img src="/assets/images/calendario.svg" alt="" />
-                                    <p>Sab, 28 de dezembro - 10:00</p>
-                                </div>
-
-                                <div className="info-evento2">
-                                    <img src="/assets/images/mapa3.svg" alt="" />
-                                    <p>Praça local</p>
-                                </div>
-
-                            </div>
-
+                        <div className="notice-list">
+                            {avisos.map((aviso) => (
+                                <article className="notice-item" key={aviso.titulo}>
+                                    <span className="notice-icon"><Icon name={aviso.icone} size={18} /></span>
+                                    <span className="notice-copy">
+                                        <strong>{aviso.titulo}</strong>
+                                        <span>{aviso.detalhe}</span>
+                                    </span>
+                                </article>
+                            ))}
                         </div>
-
-                        <div className="evento">
-
-                            <div className="img-evento">
-                                <img src="/assets/images/bairrosp.jpg" alt="" />
-                            </div>
-
-                            <div className="info-evento">
-
-                                <h3>Feira de Artesanato</h3>
-
-                                <div className="info-evento2">
-                                    <img src="/assets/images/calendario.svg" alt="" />
-                                    <p>Sab, 28 de dezembro - 10:00</p>
-                                </div>
-
-                                <div className="info-evento2">
-                                    <img src="/assets/images/mapa3.svg" alt="" />
-                                    <p>Praça local</p>
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div className="evento">
-
-                            <div className="img-evento">
-                                <img src="/assets/images/bairrosp.jpg" alt="" />
-                            </div>
-
-                            <div className="info-evento">
-
-                                <h3>Feira de Artesanato</h3>
-
-                                <div className="info-evento2">
-                                    <img src="/assets/images/calendario.svg" alt="" />
-                                    <p>Sab, 28 de dezembro - 10:00</p>
-                                </div>
-
-                                <div className="info-evento2">
-                                    <img src="/assets/images/mapa3.svg" alt="" />
-                                    <p>Praça local</p>
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
+                    </section>
                 </aside>
-
             </div>
 
+            <nav className="feed-bottom-nav" aria-label="Navegação principal">
+                <a className="bottom-nav-item is-current" href="/feed" aria-current="page">
+                    <Icon name="home" size={19} />
+                    <span>Início</span>
+                </a>
+                <a className="bottom-nav-item" href="/comunidade">
+                    <Icon name="people" size={19} />
+                    <span>Comunidade</span>
+                </a>
+                <a className="bottom-nav-item" href="/mapa">
+                    <Icon name="map" size={19} />
+                    <span>Mapa</span>
+                </a>
+            </nav>
         </div>
     );
 }

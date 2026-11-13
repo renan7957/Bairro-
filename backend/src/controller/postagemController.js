@@ -1,27 +1,53 @@
 
 import { Router } from 'express';
+import { unlink } from 'node:fs/promises';
 import * as service from '../service/postagemService.js';
 import { getAuthentication } from '../utils/jwt.js';
+import { caminhoFoto, uploadFoto } from '../utils/upload.js';
 
 const endpoints = Router();
 
 // Criar publicação
-// Criar publicação
-endpoints.post('/postagem', getAuthentication(), async (req, resp) => {
+endpoints.post('/postagem', getAuthentication(), (req, resp, next) => {
+    uploadFoto.single('foto')(req, resp, (err) => {
+        if (err) {
+            const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+            resp.status(status).send({ erro: err.message });
+            return;
+        }
+
+        next();
+    });
+}, async (req, resp) => {
     try {
-        const { conteudo, categoria } = req.body;
+        const { conteudo, categoria, titulo, endereco, descricao, dataEvento } = req.body;
         const idConta = req.user.id;
+        const foto = req.file ? `/uploads/${req.file.filename}` : '';
 
         const id = await service.criarPostagem(
             idConta,
             conteudo,
-            categoria
+            categoria,
+            titulo,
+            endereco,
+            descricao,
+            foto,
+            dataEvento
         );
 
         resp.status(201).send({ id });
 
     } catch (err) {
-        resp.status(400).send({ erro: err.message });
+        if (req.file) {
+            await unlink(req.file.path).catch((fileError) => {
+                if (fileError.code !== 'ENOENT') console.error('Erro ao remover upload incompleto:', fileError);
+            });
+        }
+
+        console.error('Erro ao criar publicação:', err);
+        resp.status(err.status || 500).send({
+            erro: err.status ? err.message : 'Erro ao salvar publicação no banco de dados.'
+        });
     }
 });
 
@@ -35,6 +61,7 @@ endpoints.get('/postagem', getAuthentication(), async (req, resp) => {
         resp.send(postagens);
 
     } catch (err) {
+        console.error('Erro ao listar publicações:', err);
         resp.status(500).send({ erro: 'Erro ao buscar publicações.' });
     }
 });
@@ -75,7 +102,14 @@ endpoints.delete('/postagem/:id', getAuthentication(), async (req, resp) => {
         const idConta = req.user.id;
         const idPostagem = Number(req.params.id);
 
-        await service.apagarPostagem(idConta, idPostagem);
+        const foto = await service.apagarPostagem(idConta, idPostagem);
+        const arquivoFoto = caminhoFoto(foto);
+
+        if (arquivoFoto) {
+            await unlink(arquivoFoto).catch((err) => {
+                if (err.code !== 'ENOENT') console.error('Erro ao remover arquivo da publicação:', err);
+            });
+        }
 
         resp.status(200).send({
             mensagem: 'Publicação apagada com sucesso!'

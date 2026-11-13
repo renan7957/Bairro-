@@ -1,23 +1,50 @@
 
 import * as db from '../repository/postagemRepository.js';
 
+function normalizarCategoria(categoria) {
+    const valor = String(categoria || '').trim().toLowerCase();
+
+    if (['todos', 'aviso', 'evento', 'duvida', 'ocorrência', 'ocorrencia'].includes(valor)) {
+        if (valor === 'ocorrência' || valor === 'ocorrencia') return 'ocorrencia';
+        return valor;
+    }
+
+    if (['aviso', 'evento', 'duvida', 'ocorrencia'].includes(valor)) {
+        return valor;
+    }
+
+    return 'aviso';
+}
+
 // Criar publicação
-// Criar publicação
-export async function criarPostagem(idConta, conteudo, categoria) {
-    if (!conteudo || !conteudo.trim()) {
+export async function criarPostagem(idConta, conteudo, categoria, titulo = '', endereco = '', descricao = '', foto = '', dataEvento = '') {
+    const texto = typeof conteudo === 'string' ? conteudo.trim() : '';
+    const tituloFormatado = typeof titulo === 'string' ? titulo.trim() : '';
+    const enderecoFormatado = typeof endereco === 'string' ? endereco.trim() : '';
+    const descricaoFormatada = typeof descricao === 'string' ? descricao.trim() : '';
+    const fotoFormatada = typeof foto === 'string' ? foto.trim() : '';
+    const dataEventoFormatada = typeof dataEvento === 'string' ? dataEvento.trim() : '';
+    const categoriaNormalizada = normalizarCategoria(categoria);
+
+    if (!texto && !tituloFormatado && !enderecoFormatado && !descricaoFormatada && !fotoFormatada) {
         throw new Error('A publicação não pode estar vazia.');
     }
 
-    const categoriasPermitidas = ['todos', 'aviso', 'evento', 'duvida'];
-
-    if (!categoriasPermitidas.includes(categoria)) {
-        throw new Error('Categoria inválida.');
+    if (dataEventoFormatada && Number.isNaN(new Date(dataEventoFormatada).getTime())) {
+        throw new Error('A data do evento é inválida.');
     }
+
+    const conteudoFinal = texto || [tituloFormatado, descricaoFormatada, enderecoFormatado].filter(Boolean).join(' - ');
 
     return db.savePostagem(
         idConta,
-        conteudo.trim(),
-        categoria
+        conteudoFinal,
+        categoriaNormalizada,
+        tituloFormatado,
+        enderecoFormatado,
+        descricaoFormatada,
+        fotoFormatada,
+        dataEventoFormatada
     );
 }
 
@@ -44,7 +71,9 @@ export async function apagarPostagem(idConta, idPostagem) {
 
     const resultado = await db.apagarPostagem(idConta, idPostagem);
 
-    if (resultado === 0) {
+    if (resultado === null) {
         throw new Error('Publicação não encontrada ou você não tem permissão para apagá-la.');
     }
+
+    return resultado.foto;
 }

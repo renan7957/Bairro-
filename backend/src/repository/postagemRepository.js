@@ -1,47 +1,88 @@
 
 import { con } from './connection.js';
 
+async function getColunasPostagem() {
+    const [colunas] = await con.query('show columns from postagem');
+    return new Set(colunas.map((coluna) => coluna.Field));
+}
+
 // Salvar publicação
-export async function savePostagem(idConta, conteudo, categoria) {
+export async function savePostagem(idConta, conteudo, categoria, titulo = '', endereco = '', descricao = '', foto = '', dataEvento = '') {
+    const colunas = await getColunasPostagem();
+    const campos = ['id_conta', 'categoria'];
+    const valores = [idConta, categoria];
+    const temCamposDetalhados = ['titulo', 'endereco', 'descricao', 'foto']
+        .some((campo) => colunas.has(campo));
+    const conteudoArmazenado = temCamposDetalhados
+        ? (dataEvento && !colunas.has('data_evento')
+            ? JSON.stringify({ titulo, endereco, descricao: descricao || conteudo, foto, data_evento: dataEvento })
+            : conteudo)
+        : JSON.stringify({ titulo, endereco, descricao: descricao || conteudo, foto, data_evento: dataEvento });
+
+    if (colunas.has('titulo')) {
+        campos.push('titulo');
+        valores.push(titulo || null);
+    }
+
+    if (colunas.has('endereco')) {
+        campos.push('endereco');
+        valores.push(endereco || null);
+    }
+
+    if (colunas.has('descricao')) {
+        campos.push('descricao');
+        valores.push(descricao || null);
+    }
+
+    if (colunas.has('foto')) {
+        campos.push('foto');
+        valores.push(foto || null);
+    }
+
+    if (colunas.has('data_evento')) {
+        campos.push('data_evento');
+        valores.push(dataEvento ? `${dataEvento.replace('T', ' ')}:00` : null);
+    }
+
+    if (colunas.has('conteudo')) {
+        campos.push('conteudo');
+        valores.push(conteudoArmazenado);
+    }
+
     const command = `
-        insert into postagem (id_conta, conteudo, categoria)
-        values (?, ?, ?)
+        insert into postagem (${campos.join(', ')})
+        values (${campos.map(() => '?').join(', ')})
     `;
 
-    const [result] = await con.query(command, [
-        idConta,
-        conteudo,
-        categoria
-    ]);
+    const [result] = await con.query(command, valores);
 
     return result.insertId;
 }
 
 // Buscar publicações e informações das curtidas
 export async function getPostagens(idConta) {
+    const colunas = await getColunasPostagem();
+    const campos = [
+        'p.id',
+        'p.conteudo',
+        'p.categoria',
+        'p.data_postagem',
+        'c.id as id_conta',
+        'c.nome',
+        '(p.id_conta = ?) as minha',
+        '(select count(*) from curtida l where l.id_postagem = p.id) as total_curtidas',
+        '(select count(*) from curtida l where l.id_postagem = p.id and l.id_conta = ?) as curtiu'
+    ];
+
+    if (colunas.has('titulo')) campos.push('p.titulo');
+    if (colunas.has('endereco')) campos.push('p.endereco');
+    if (colunas.has('descricao')) campos.push('p.descricao');
+    if (colunas.has('foto')) campos.push('p.foto');
+    if (colunas.has('data_evento')) campos.push('p.data_evento');
+
     const command = `
         select
-            p.id,
-            p.conteudo,
-            p.categoria,
-            p.data_postagem,
-            c.id as id_conta,
-            c.nome,
-
-            (p.id_conta = ?) as minha,
-
-            (
-                select count(*)
-                from curtida l
-                where l.id_postagem = p.id
-            ) as total_curtidas,
-
-            (
-                select count(*)
-                from curtida l
-                where l.id_postagem = p.id
-                and l.id_conta = ?
-            ) as curtiu
+            ${campos.join(', ')}
 
         from postagem p
 
@@ -56,7 +97,34 @@ export async function getPostagens(idConta) {
         idConta
     ]);
 
-    return linhas;
+    return linhas.map((linha) => {
+        const publicacao = { ...linha };
+
+        if (publicacao.conteudo && typeof publicacao.conteudo === 'string') {
+            try {
+                const json = JSON.parse(publicacao.conteudo);
+                if (json && typeof json === 'object') {
+                    publicacao.titulo = publicacao.titulo || json.titulo || '';
+                    publicacao.endereco = publicacao.endereco || json.endereco || '';
+                    publicacao.descricao = publicacao.descricao || json.descricao || '';
+                    publicacao.foto = publicacao.foto || json.foto || '';
+                    publicacao.data_evento = publicacao.data_evento || json.data_evento || null;
+                    publicacao.conteudo = publicacao.descricao || json.descricao || json.titulo || publicacao.conteudo;
+                }
+            } catch (error) {
+                publicacao.titulo = publicacao.titulo || '';
+                publicacao.endereco = publicacao.endereco || '';
+                publicacao.descricao = publicacao.descricao || publicacao.conteudo;
+            }
+        }
+
+        publicacao.descricao = publicacao.descricao || publicacao.conteudo || '';
+        publicacao.titulo = publicacao.titulo || '';
+        publicacao.endereco = publicacao.endereco || '';
+        publicacao.foto = publicacao.foto || '';
+
+        return publicacao;
+    });
 }
 
 // Curtir publicação
@@ -82,6 +150,25 @@ export async function descurtirPostagem(idConta, idPostagem) {
 
 // Apagar publicação
 export async function apagarPostagem(idConta, idPostagem) {
+    const colunas = await getColunasPostagem();
+    const campoFoto = colunas.has('foto') ? 'foto' : 'conteudo';
+    const [postagens] = await con.query(
+        `select ${campoFoto} from postagem where id = ? and id_conta = ?`,
+        [idPostagem, idConta]
+    );
+
+    if (postagens.length === 0) return null;
+
+    let foto = colunas.has('foto') ? postagens[0].foto : null;
+
+    if (!foto && postagens[0].conteudo) {
+        try {
+            foto = JSON.parse(postagens[0].conteudo).foto || null;
+        } catch {
+            foto = null;
+        }
+    }
+
     const command = `
         delete from postagem
         where id = ?
@@ -93,5 +180,5 @@ export async function apagarPostagem(idConta, idPostagem) {
         idConta
     ]);
 
-    return result.affectedRows;
+    return result.affectedRows === 0 ? null : { foto };
 }
