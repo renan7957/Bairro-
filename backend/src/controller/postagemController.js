@@ -4,6 +4,7 @@ import { unlink } from 'node:fs/promises';
 import * as service from '../service/postagemService.js';
 import { getAuthentication } from '../utils/jwt.js';
 import { caminhoFoto, uploadFoto } from '../utils/upload.js';
+import { limparLocaisExpirados } from '../utils/limpezaLocaisMapa.js';
 
 const endpoints = Router();
 
@@ -24,7 +25,16 @@ endpoints.post('/postagem', getAuthentication(), (req, resp, next) => {
     });
 }, async (req, resp) => {
     try {
-        const { conteudo, categoria, titulo, endereco, descricao, dataEvento } = req.body || {};
+        const {
+            conteudo,
+            categoria,
+            titulo,
+            endereco,
+            descricao,
+            dataEvento,
+            latitude,
+            longitude
+        } = req.body || {};
         const idConta = req.user.id;
         const foto = req.file ? `/uploads/${req.file.filename}` : '';
 
@@ -36,7 +46,9 @@ endpoints.post('/postagem', getAuthentication(), (req, resp, next) => {
             endereco,
             descricao,
             foto,
-            dataEvento
+            dataEvento,
+            latitude,
+            longitude
         );
 
         resp.status(201).send({ id });
@@ -60,6 +72,7 @@ endpoints.get('/postagem', getAuthentication(), async (req, resp) => {
     try {
         const idConta = req.user.id;
 
+        await limparLocaisExpirados();
         const postagens = await service.listarPostagens(idConta);
 
         resp.send(postagens);

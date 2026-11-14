@@ -16,8 +16,14 @@ function normalizarCategoria(categoria) {
     return 'aviso';
 }
 
+function erroDeValidacao(mensagem) {
+    const erro = new Error(mensagem);
+    erro.status = 400;
+    return erro;
+}
+
 // Criar publicação
-export async function criarPostagem(idConta, conteudo, categoria, titulo = '', endereco = '', descricao = '', foto = '', dataEvento = '') {
+export async function criarPostagem(idConta, conteudo, categoria, titulo = '', endereco = '', descricao = '', foto = '', dataEvento = '', latitude, longitude) {
     const texto = typeof conteudo === 'string' ? conteudo.trim() : '';
     const tituloFormatado = typeof titulo === 'string' ? titulo.trim() : '';
     const enderecoFormatado = typeof endereco === 'string' ? endereco.trim() : '';
@@ -25,6 +31,12 @@ export async function criarPostagem(idConta, conteudo, categoria, titulo = '', e
     const fotoFormatada = typeof foto === 'string' ? foto.trim() : '';
     const dataEventoFormatada = typeof dataEvento === 'string' ? dataEvento.trim() : '';
     const categoriaNormalizada = normalizarCategoria(categoria);
+    const latitudeFormatada = latitude === undefined || latitude === null || latitude === ''
+        ? null
+        : Number(latitude);
+    const longitudeFormatada = longitude === undefined || longitude === null || longitude === ''
+        ? null
+        : Number(longitude);
 
     if (!texto && !tituloFormatado && !enderecoFormatado && !descricaoFormatada && !fotoFormatada) {
         throw new Error('A publicação não pode estar vazia.');
@@ -32,6 +44,22 @@ export async function criarPostagem(idConta, conteudo, categoria, titulo = '', e
 
     if (dataEventoFormatada && Number.isNaN(new Date(dataEventoFormatada).getTime())) {
         throw new Error('A data do evento é inválida.');
+    }
+
+    if ((latitudeFormatada === null) !== (longitudeFormatada === null)) {
+        throw erroDeValidacao('Informe latitude e longitude juntas.');
+    }
+
+    if (
+        latitudeFormatada !== null
+        && (!Number.isFinite(latitudeFormatada)
+            || latitudeFormatada < -90
+            || latitudeFormatada > 90
+            || !Number.isFinite(longitudeFormatada)
+            || longitudeFormatada < -180
+            || longitudeFormatada > 180)
+    ) {
+        throw erroDeValidacao('As coordenadas do local são inválidas.');
     }
 
     const conteudoFinal = texto || [tituloFormatado, descricaoFormatada, enderecoFormatado].filter(Boolean).join(' - ');
@@ -44,13 +72,19 @@ export async function criarPostagem(idConta, conteudo, categoria, titulo = '', e
         enderecoFormatado,
         descricaoFormatada,
         fotoFormatada,
-        dataEventoFormatada
+        dataEventoFormatada,
+        latitudeFormatada,
+        longitudeFormatada
     );
 }
 
 // Listar publicações
 export async function listarPostagens(idConta) {
     return db.getPostagens(idConta);
+}
+
+export async function removerLocaisExpirados() {
+    return db.removerLocaisExpirados();
 }
 
 // Curtir publicação

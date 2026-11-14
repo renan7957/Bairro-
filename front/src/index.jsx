@@ -11,6 +11,8 @@ import Feed from './pages/feed/index.jsx';
 import './pages/feed/index.scss';
 import Comunidade from './pages/comunidade/index.jsx';
 import './pages/comunidade/index.scss';
+import Mapa from './pages/mapa/index.jsx';
+import './pages/mapa/index.scss';
 import RotaProtegida from './components/rotaprotegida.jsx';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -27,9 +29,9 @@ root.render(
         <Route element={<RotaProtegida />}>
           <Route path="/feed" element={<Feed />} />
           <Route path="/comunidade" element={<Comunidade />} />
+          <Route path="/mapa" element={<Mapa />} />
         </Route>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
 );
-

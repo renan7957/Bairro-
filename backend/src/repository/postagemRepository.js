@@ -7,7 +7,7 @@ async function getColunasPostagem() {
 }
 
 // Salvar publicação
-export async function savePostagem(idConta, conteudo, categoria, titulo = '', endereco = '', descricao = '', foto = '', dataEvento = '') {
+export async function savePostagem(idConta, conteudo, categoria, titulo = '', endereco = '', descricao = '', foto = '', dataEvento = '', latitude = null, longitude = null) {
     const colunas = await getColunasPostagem();
     const campos = ['id_conta'];
     const valores = [idConta];
@@ -19,9 +19,20 @@ export async function savePostagem(idConta, conteudo, categoria, titulo = '', en
         .some((campo) => colunas.has(campo));
     const precisaSerializar = !temCamposDetalhados
         || (!colunas.has('categoria') && Boolean(categoria))
-        || (dataEvento && !colunas.has('data_evento'));
+        || (dataEvento && !colunas.has('data_evento'))
+        || (latitude !== null && (!colunas.has('latitude') || !colunas.has('longitude')));
     const conteudoArmazenado = precisaSerializar
-        ? JSON.stringify({ conteudo, categoria, titulo, endereco, descricao: descricao || conteudo, foto, data_evento: dataEvento })
+        ? JSON.stringify({
+            conteudo,
+            categoria,
+            titulo,
+            endereco,
+            descricao: descricao || conteudo,
+            foto,
+            data_evento: dataEvento,
+            latitude,
+            longitude
+        })
         : conteudo;
 
     if (colunas.has('titulo')) {
@@ -47,6 +58,16 @@ export async function savePostagem(idConta, conteudo, categoria, titulo = '', en
     if (colunas.has('data_evento')) {
         campos.push('data_evento');
         valores.push(dataEvento ? `${dataEvento.replace('T', ' ')}:00` : null);
+    }
+
+    if (latitude !== null && colunas.has('latitude')) {
+        campos.push('latitude');
+        valores.push(latitude);
+    }
+
+    if (longitude !== null && colunas.has('longitude')) {
+        campos.push('longitude');
+        valores.push(longitude);
     }
 
     if (colunas.has('conteudo')) {
@@ -85,6 +106,8 @@ export async function getPostagens(idConta) {
     if (colunas.has('descricao')) campos.push('p.descricao');
     if (colunas.has('foto')) campos.push('p.foto');
     if (colunas.has('data_evento')) campos.push('p.data_evento');
+    if (colunas.has('latitude')) campos.push('p.latitude');
+    if (colunas.has('longitude')) campos.push('p.longitude');
 
     const command = `
         select
@@ -115,6 +138,8 @@ export async function getPostagens(idConta) {
                     publicacao.descricao = publicacao.descricao || json.descricao || '';
                     publicacao.foto = publicacao.foto || json.foto || '';
                     publicacao.data_evento = publicacao.data_evento || json.data_evento || null;
+                    publicacao.latitude = publicacao.latitude ?? json.latitude ?? null;
+                    publicacao.longitude = publicacao.longitude ?? json.longitude ?? null;
                     publicacao.categoria = publicacao.categoria || json.categoria || '';
                     publicacao.conteudo = json.conteudo || publicacao.descricao || json.descricao || json.titulo || publicacao.conteudo;
                 }
@@ -129,9 +154,77 @@ export async function getPostagens(idConta) {
         publicacao.titulo = publicacao.titulo || '';
         publicacao.endereco = publicacao.endereco || '';
         publicacao.foto = publicacao.foto || '';
+        publicacao.latitude = publicacao.latitude ?? null;
+        publicacao.longitude = publicacao.longitude ?? null;
 
         return publicacao;
     });
+}
+
+export async function removerLocaisExpirados() {
+    const colunas = await getColunasPostagem();
+    const temCoordenadasEmColunas = colunas.has('latitude') && colunas.has('longitude');
+    const campos = ['id', 'conteudo'];
+
+    if (colunas.has('foto')) campos.push('foto');
+    if (temCoordenadasEmColunas) campos.push('latitude', 'longitude');
+
+    const condicaoLocalizacao = temCoordenadasEmColunas
+        ? 'latitude is not null and longitude is not null'
+        : `conteudo like '%"latitude"%' and conteudo like '%"longitude"%'`;
+    const [linhas] = await con.query(`
+        select ${campos.join(', ')}
+        from postagem
+        where data_postagem <= date_sub(now(), interval 24 hour)
+        and ${condicaoLocalizacao}
+    `);
+
+    const locaisExpirados = linhas.filter((linha) => {
+        let dados = {};
+        if (!temCoordenadasEmColunas) {
+            try {
+                dados = JSON.parse(linha.conteudo);
+            } catch {
+                return false;
+            }
+        }
+
+        const latitude = linha.latitude ?? dados.latitude;
+        const longitude = linha.longitude ?? dados.longitude;
+
+        return latitude !== null
+            && latitude !== undefined
+            && longitude !== null
+            && longitude !== undefined
+            && Number.isFinite(Number(latitude))
+            && Number(latitude) >= -90
+            && Number(latitude) <= 90
+            && Number.isFinite(Number(longitude))
+            && Number(longitude) >= -180
+            && Number(longitude) <= 180;
+    });
+
+    if (locaisExpirados.length === 0) return [];
+
+    const ids = locaisExpirados.map((local) => local.id);
+    const [resultado] = await con.query(`
+        delete from postagem
+        where id in (${ids.map(() => '?').join(', ')})
+        and data_postagem <= date_sub(now(), interval 24 hour)
+    `, ids);
+
+    if (resultado.affectedRows === 0) return [];
+
+    return locaisExpirados.map((local) => {
+        let dados = {};
+        try {
+            dados = JSON.parse(local.conteudo);
+        } catch {
+            return null;
+        }
+
+        return (colunas.has('foto') && local.foto) || dados.foto;
+    }).filter(Boolean);
 }
 
 // Curtir publicação

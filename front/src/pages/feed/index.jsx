@@ -6,13 +6,8 @@ const filtros = [
     { value: 'todos', label: 'Todos' },
     { value: 'aviso', label: 'Avisos' },
     { value: 'evento', label: 'Eventos' },
-    { value: 'duvida', label: 'Dúvidas' }   
-];
-
-const avisos = [
-    { icone: 'water', titulo: 'Manutenção no fornecimento de água', detalhe: 'Hoje · 8h às 14h' },
-    { icone: 'bolt', titulo: 'Interrupção de energia (manutenção)', detalhe: 'Dia 02/10 · 9h às 10h' },
-    { icone: 'trash', titulo: 'Coleta de lixo reciclável', detalhe: 'Hoje · Bairro todo' }
+    { value: 'duvida', label: 'Dúvidas' },
+    { value: 'ocorrencia', label: 'Ocorrências' }
 ];
 
 function Icon({ name, size = 18 }) {
@@ -86,6 +81,23 @@ function formatarData(data) {
     }) + ' · Comunidade';
 }
 
+function formatarDataAviso(data) {
+    const dataAviso = new Date(data);
+    if (Number.isNaN(dataAviso.getTime())) return 'Dia e horário a confirmar';
+
+    return dataAviso.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    }).replace(',', ' ·');
+}
+
+function urlDaImagem(foto) {
+    if (!foto) return '';
+    return foto.startsWith('/uploads/') ? `http://localhost:5050${foto}` : foto;
+}
+
 export default function Feed() {
     const [postagens, setPostagens] = useState([]);
     const [carregando, setCarregando] = useState(true);
@@ -95,14 +107,40 @@ export default function Feed() {
     const [categoriaNova, setCategoriaNova] = useState('aviso');
     const [publicando, setPublicando] = useState(false);
     const [imagem, setImagem] = useState(null);
+    const [arquivoImagem, setArquivoImagem] = useState(null);
+    const [modalAvisoAberto, setModalAvisoAberto] = useState(false);
+    const [tituloAviso, setTituloAviso] = useState('');
+    const [diaAviso, setDiaAviso] = useState('');
+    const [horarioAviso, setHorarioAviso] = useState('');
+    const [salvandoAviso, setSalvandoAviso] = useState(false);
+    const [erroAviso, setErroAviso] = useState('');
 
     function sair() {
         localStorage.removeItem('token');
         window.location.href = '/login';
     }
 
-        function adicionarFoto(e) {
-        setImagem(URL.createObjectURL(e.target.files[0]));
+    function adicionarFoto(event) {
+        const arquivo = event.target.files?.[0];
+        if (!arquivo) return;
+
+        const tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!tiposPermitidos.includes(arquivo.type)) {
+            setErro('Escolha uma imagem JPG, PNG, GIF ou WebP.');
+            event.target.value = '';
+            return;
+        }
+
+        if (arquivo.size > 5 * 1024 * 1024) {
+            setErro('A imagem deve ter no máximo 5 MB.');
+            event.target.value = '';
+            return;
+        }
+
+        setErro('');
+        setArquivoImagem(arquivo);
+        setImagem(URL.createObjectURL(arquivo));
+        event.target.value = '';
     }
 
     async function buscarPostagens() {
@@ -130,7 +168,14 @@ export default function Feed() {
 
     useEffect(() => {
         buscarPostagens();
+        const intervalo = setInterval(buscarPostagens, 60 * 1000);
+        return () => clearInterval(intervalo);
     }, []);
+
+    useEffect(() => {
+        if (!imagem) return undefined;
+        return () => URL.revokeObjectURL(imagem);
+    }, [imagem]);
 
     async function alternarCurtida(postagem) {
         const token = localStorage.getItem('token');
@@ -172,9 +217,9 @@ export default function Feed() {
                 throw new Error(dados.erro || 'Não foi possível apagar a publicação.');
             }
 
-            setPostagens((lista) => lista.filter((postagem) => postagem.id !== idPostagem));
+            setPostagens((lista) => lista.filter((postagem) => String(postagem.id) !== String(idPostagem)));
         } catch (error) {
-            setErro(error.message);
+            setErroAviso(error.message);
         }
     }
 
@@ -191,16 +236,28 @@ export default function Feed() {
         setErro('');
 
         try {
-            const resposta = await fetch('http://localhost:5050/postagem', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-access-token': localStorage.getItem('token')
-                },
-                body: JSON.stringify({
+            const cabecalhos = {
+                'x-access-token': localStorage.getItem('token')
+            };
+            let corpo;
+
+            if (arquivoImagem) {
+                corpo = new FormData();
+                corpo.append('conteudo', texto);
+                corpo.append('categoria', categoriaNova);
+                corpo.append('foto', arquivoImagem);
+            } else {
+                cabecalhos['Content-Type'] = 'application/json';
+                corpo = JSON.stringify({
                     conteudo: texto,
                     categoria: categoriaNova
-                })
+                });
+            }
+
+            const resposta = await fetch('http://localhost:5050/postagem', {
+                method: 'POST',
+                headers: cabecalhos,
+                body: corpo
             });
             const dados = await resposta.json();
 
@@ -209,6 +266,8 @@ export default function Feed() {
             }
 
             setConteudo('');
+            setArquivoImagem(null);
+            setImagem(null);
             await buscarPostagens();
         } catch (error) {
             setErro(error.message);
@@ -217,15 +276,60 @@ export default function Feed() {
         }
     }
 
+    async function adicionarAviso(event) {
+        event.preventDefault();
+        const titulo = tituloAviso.trim();
+
+        if (!titulo || !diaAviso || !horarioAviso) {
+            setErroAviso('Preencha o título, o dia e o horário do aviso.');
+            return;
+        }
+
+        setSalvandoAviso(true);
+        setErroAviso('');
+
+        try {
+            const resposta = await fetch('http://localhost:5050/postagem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-token': localStorage.getItem('token')
+                },
+                body: JSON.stringify({
+                    conteudo: titulo,
+                    categoria: 'aviso',
+                    titulo,
+                    dataEvento: `${diaAviso}T${horarioAviso}`
+                })
+            });
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || 'Não foi possível adicionar o aviso.');
+            }
+
+            setTituloAviso('');
+            setDiaAviso('');
+            setHorarioAviso('');
+            setModalAvisoAberto(false);
+            await buscarPostagens();
+        } catch (error) {
+            setErroAviso(error.message);
+        } finally {
+            setSalvandoAviso(false);
+        }
+    }
+
     const postagensFiltradas = postagens.filter((postagem) => (
         filtro === 'todos' || postagem.categoria === filtro
     ));
+    const avisosRecentes = postagens.filter((postagem) => postagem.categoria === 'aviso').slice(0, 5);
 
     return (
         <div className="pag-feed">
             <header className="feed-topbar">
                 <a href="/feed" className="feed-logo" aria-label="Bairro+, início">
-                    <img
+                    <img className="feed-logo-image"
                         src="/assets/images/logo3.png"
                         alt="Bairro+ — Juntos por um bairro mais conectado"
                     />
@@ -241,13 +345,12 @@ export default function Feed() {
                         <Icon name="bell" size={22} />
                     </button>
 
-           
-                        
-                      <button className="header-icon-button" onClick={sair}
-                      aria-label="logout">
+
+
+                      <button className="header-icon-button" type="button" onClick={sair}
+                        aria-label="Sair" title="Sair">
                         <Icon name="logout" size={22} />
                       </button>
-                 
                 </div>
             </header>
 
@@ -267,42 +370,28 @@ export default function Feed() {
                                         placeholder="O que você quer compartilhar com o bairro?"
                                         aria-label="Conteúdo da publicação"
                                     />
-                                                </form>
-
-                                                <div className="preview">
-                                {imagem && (
-                                    <img src={imagem} alt="Foto selecionada" />
-                                    )}
-                                    </div>
-
+                                </form>
                             </div>
 
-                     
+                            {imagem && (
+                                <div className="preview">
+                                    <img src={imagem} alt="Prévia da foto selecionada" />
+                                </div>
+                            )}
 
                             <div className="composer-toolbar">
                                 <div className="composer-tools" aria-label="Opções de publicação">
-                                    <button className="composer-tool" type="button" disabled title="Disponível em breve">
+                                    <input
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/gif,image/webp"
+                                        id="foto"
+                                        onChange={adicionarFoto}
+                                        hidden
+                                    />
+                                    <label className="composer-tool photo-tool" htmlFor="foto">
                                         <Icon name="camera" size={16} />
-                                                                        <div>
-
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                id="foto"
-                                                onChange={adicionarFoto}
-                                                hidden
-                                            />
-
-                                            <label htmlFor="foto" className="btn-foto">
-                                                foto
-                                            </label>
-
-                                            {imagem && (
-                                                <img src={imagem} alt="Foto selecionada" />
-                                            )}
-
-                                        </div>
-                                    </button>
+                                        <span>Foto</span>
+                                    </label>
                                     <button className="composer-tool" type="button" disabled title="Disponível em breve">
                                         <Icon name="video" size={16} />
                                         <span>Vídeo</span>
@@ -312,20 +401,18 @@ export default function Feed() {
                                         <span>Localização</span>
                                     </button>
 
-                                    
-                            <label className="compose-category">
-                                <span>Categoria</span>
-                                <select
-                                    value={categoriaNova}
-                                    onChange={(event) => setCategoriaNova(event.target.value)}
-                                    aria-label="Categoria da publicação"
-                                >
-                                    <option value="aviso">Aviso</option>
-                                    <option value="evento">Evento</option>
-                                    <option value="duvida">Dúvida</option>
-                                </select>
-                            </label>
-
+                                    <label className="compose-category">
+                                        <span>Categoria</span>
+                                        <select
+                                            value={categoriaNova}
+                                            onChange={(event) => setCategoriaNova(event.target.value)}
+                                            aria-label="Categoria da publicação"
+                                        >
+                                            <option value="aviso">Aviso</option>
+                                            <option value="evento">Evento</option>
+                                            <option value="duvida">Dúvida</option>
+                                        </select>
+                                    </label>
                                 </div>
 
                                 <button
@@ -388,17 +475,6 @@ export default function Feed() {
                                                 <span>{formatarData(postagem.data_postagem)}</span>
                                             </div>
 
-                                            {Number(postagem.minha) === 1 && (
-                                                <button
-                                                    className="delete-post-button"
-                                                    type="button"
-                                                    onClick={() => apagarPublicacao(postagem.id)}
-                                                    aria-label="Apagar publicação"
-                                                    title="Apagar publicação"
-                                                >
-                                                    <Icon name="trash" size={18} />
-                                                </button>
-                                            )}
                                         </div>
 
                                         <div className="post-content">
@@ -407,9 +483,17 @@ export default function Feed() {
                                                     {postagem.categoria === 'aviso' && 'Aviso'}
                                                     {postagem.categoria === 'evento' && 'Evento'}
                                                     {postagem.categoria === 'duvida' && 'Dúvida'}
+                                                    {postagem.categoria === 'ocorrencia' && 'Ocorrência'}
                                                 </span>
                                             )}
                                             <p>{postagem.conteudo}</p>
+                                            {postagem.foto && (
+                                                <img
+                                                    className="post-image"
+                                                    src={urlDaImagem(postagem.foto)}
+                                                    alt="Imagem da publicação"
+                                                />
+                                            )}
                                         </div>
 
                                         <div className="post-actions">
@@ -453,23 +537,110 @@ export default function Feed() {
                             <div className="sidebar-title">
                                 <Icon name="megaphone" size={23} />
                                 <h2>Avisos recentes</h2>
-                                </div>
+                            </div>
+                            <button
+                                className="adicionar-aviso"
+                                type="button"
+                                onClick={() => {
+                                    setErroAviso('');
+                                    setModalAvisoAberto(true);
+                                }}
+                            >
+                                + Adicionar
+                            </button>
                         </div>
 
                         <div className="notice-list">
-                            {avisos.map((aviso) => (
-                                <article className="notice-item" key={aviso.titulo}>
-                                    <span className="notice-icon"><Icon name={aviso.icone} size={18} /></span>
+                            {avisosRecentes.map((aviso) => (
+                                <article className="notice-item" key={aviso.id}>
+                                    <span className="notice-icon"><Icon name="megaphone" size={18} /></span>
+
                                     <span className="notice-copy">
-                                        <strong>{aviso.titulo}</strong>
-                                        <span>{aviso.detalhe}</span>
+                                        <strong>{aviso.titulo || aviso.conteudo}</strong>
+                                        <span>{formatarDataAviso(aviso.data_evento || aviso.data_postagem)}</span>
                                     </span>
+                                    {Number(aviso.minha) === 1 && (
+                                        <button
+                                            className="delete-post-button"
+                                            type="button"
+                                            onClick={() => apagarPublicacao(aviso.id)}
+                                            aria-label="Apagar aviso"
+                                            title="Apagar aviso"
+                                        >
+                                            <Icon name="trash" size={18} />
+                                        </button>
+                                    )}
                                 </article>
                             ))}
+                            {erroAviso && !modalAvisoAberto && (
+                                <p className="avisos-vazios" role="alert">{erroAviso}</p>
+                            )}
+                            {avisosRecentes.length === 0 && (
+                                <p className="avisos-vazios">Ainda não há avisos. Adicione o primeiro!</p>
+                            )}
                         </div>
                     </section>
                 </aside>
             </div>
+
+            {modalAvisoAberto && (
+                <div className="notice-modal-backdrop">
+                    <section
+                        className="notice-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="notice-modal-title"
+                    >
+                        <h2 id="notice-modal-title">Adicionar aviso</h2>
+                        <form onSubmit={adicionarAviso}>
+                            <label>
+                                Título
+                                <input
+                                    type="text"
+                                    value={tituloAviso}
+                                    onChange={(event) => setTituloAviso(event.target.value)}
+                                    maxLength={120}
+                                    required
+                                />
+                            </label>
+                            <div className="notice-date-time">
+                                <label>
+                                    Dia
+                                    <input
+                                        type="date"
+                                        value={diaAviso}
+                                        onChange={(event) => setDiaAviso(event.target.value)}
+                                        required
+                                    />
+                                </label>
+                                <label>
+                                    Horário
+                                    <input
+                                        type="time"
+                                        value={horarioAviso}
+                                        onChange={(event) => setHorarioAviso(event.target.value)}
+                                        required
+                                    />
+                                </label>
+                            </div>
+                            {erroAviso && <p className="feed-error" role="alert">{erroAviso}</p>}
+                            <div className="notice-modal-actions">
+                                <button
+                                    className="notice-cancel-button"
+                                    type="button"
+                                    onClick={() => setModalAvisoAberto(false)}
+                                    disabled={salvandoAviso}
+                                >
+                                    Cancelar
+                                </button>
+                                <button className="publish-button" type="submit" disabled={salvandoAviso}>
+                                    {salvandoAviso ? 'Salvando...' : 'Adicionar aviso'}
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+            )}
 
             <nav className="feed-bottom-nav" aria-label="Navegação principal">
                 <a className="bottom-nav-item is-current" href="/feed" aria-current="page">
@@ -484,7 +655,7 @@ export default function Feed() {
                     <Icon name="map" size={19} />
                     <span>Mapa</span>
                 </a>
-                
+
                 <a className="bottom-nav-item" href="/conta">
                     <Icon name="user" size={19} />
                     <span>Conta</span>
