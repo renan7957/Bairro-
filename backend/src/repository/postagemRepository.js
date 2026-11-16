@@ -96,6 +96,7 @@ export async function getPostagens(idConta) {
         'c.nome',
         '(p.id_conta = ?) as minha',
         '(select count(*) from curtida l where l.id_postagem = p.id) as total_curtidas',
+        '(select count(*) from compartilhamento s where s.id_postagem = p.id) as total_compartilhamentos',
         '(select count(*) from curtida l where l.id_postagem = p.id and l.id_conta = ?) as curtiu'
     ];
 
@@ -243,6 +244,16 @@ export async function descurtirPostagem(idConta, idPostagem) {
         delete from curtida
         where id_conta = ?
         and id_postagem = ?
+    `;
+
+    await con.query(command, [idConta, idPostagem]);
+}
+
+// Compartilhar publicação
+export async function compartilharPostagem(idConta, idPostagem) {
+    const command = `
+        insert into compartilhamento (id_conta, id_postagem)
+        values (?, ?)
     `;
 
     await con.query(command, [idConta, idPostagem]);

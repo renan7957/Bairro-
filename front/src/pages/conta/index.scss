@@ -1,0 +1,314 @@
+.pagina-conta {
+    min-height: 100vh;
+    background-color: #F4F7FC;
+    padding-bottom: 90px;
+    color: #172033;
+
+    .conta-cabecalho {
+        background-color: #FFFFFF;
+        padding: 22px 7%;
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        border-bottom: 1px solid #E8EDF5;
+
+        a {
+            color: #244BFF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 21px;
+            margin: 0;
+        }
+    }
+
+    .conta-conteudo {
+        width: 90%;
+        max-width: 900px;
+        margin: 35px auto;
+    }
+
+    .perfil-conta {
+        background-color: #FFFFFF;
+        padding: 30px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 3px 15px rgba(20, 40, 80, 0.04);
+    }
+
+    .perfil-foto {
+        width: 85px;
+        height: 85px;
+        border-radius: 50%;
+        background-color: #E8F0FF;
+        color: #244BFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        span {
+            font-size: 34px;
+            font-weight: 700;
+        }
+    }
+
+    .perfil-informacoes {
+        h2 {
+            font-size: 23px;
+            margin: 0 0 7px;
+        }
+
+        p {
+            color: #7A8498;
+            font-size: 14px;
+            margin: 0;
+        }
+    }
+
+    .conta-estatisticas {
+        display: flex;
+        justify-content: space-around;
+        margin: 22px 0;
+        background-color: #FFFFFF;
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 3px 15px rgba(20, 40, 80, 0.04);
+    }
+
+    .estatistica {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        min-width: 120px;
+
+        strong {
+            color: #244BFF;
+            font-size: 26px;
+        }
+
+        span {
+            color: #7A8498;
+            font-size: 13px;
+        }
+    }
+
+    .minhas-publicacoes {
+        margin-top: 30px;
+
+        >h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+    }
+
+    .lista-minhas-publicacoes {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .minha-publicacao {
+        background-color: #FFFFFF;
+        border-radius: 15px;
+        padding: 22px;
+        box-shadow: 0 3px 15px rgba(20, 40, 80, 0.04);
+
+        >p {
+            font-size: 15px;
+            line-height: 1.6;
+            margin: 18px 0;
+            overflow-wrap: anywhere;
+        }
+
+        >img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+    }
+
+    .minha-publicacao-topo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+
+        strong {
+            font-size: 15px;
+        }
+
+        span {
+            color: #8992A3;
+            font-size: 12px;
+        }
+    }
+
+    .minha-publicacao-acoes {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    border-top: 1px solid #EDF0F5;
+    padding-top: 15px;
+    margin-top: 15px;
+
+    img {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        vertical-align: middle;
+    }
+
+    span {
+        display: inline-block;
+        color: #244BFF;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 20px;
+    }
+}
+
+    .conta-erro {
+        color: #D33B3B;
+        font-size: 14px;
+    }
+
+    .conta-menu {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #FFFFFF;
+        border-top: 1px solid #E8EDF5;
+        display: flex;
+        justify-content: center;
+        gap: 55px;
+        padding: 17px;
+        z-index: 10;
+
+        a {
+            color: #7A8498;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        a.ativo {
+            color: #244BFF;
+        }
+    }
+
+    .dados-conta {
+        background: #fff;
+        padding: 25px;
+        border-radius: 16px;
+        margin: 25px 0;
+
+        h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        div {
+            margin-bottom: 18px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        strong {
+            color: #244BFF;
+            font-size: 14px;
+        }
+
+        p {
+            color: #555;
+            margin-top: 5px;
+        }
+    }
+
+
+    .conta-main {
+        min-height: calc(100vh - var(--feed-topbar-height) - var(--feed-nav-height));
+    }
+
+    .conta-conteudo {
+        width: min(100%, 860px);
+        margin: 0 auto;
+    }
+
+    .pagina-conta .feed-bottom-nav .bottom-nav-item.is-current {
+        color: #092ea3;
+    }
+
+    .pagina-conta .feed-bottom-nav .bottom-nav-item.is-current svg {
+        stroke-width: 2.4;
+    }
+
+    @media (max-width: 760px) {
+        .conta-main {
+            padding: 16px 14px 24px;
+        }
+    }
+
+}
+
+@media (max-width: 600px) {
+    .pagina-conta {
+        .conta-cabecalho {
+            padding: 18px 5%;
+            gap: 15px;
+
+            h1 {
+                font-size: 18px;
+            }
+        }
+
+        .conta-conteudo {
+            width: 92%;
+            margin: 22px auto;
+        }
+
+        .perfil-conta {
+            padding: 20px;
+        }
+
+        .perfil-foto {
+            width: 65px;
+            height: 65px;
+        }
+
+        .perfil-informacoes h2 {
+            font-size: 19px;
+        }
+
+        .minha-publicacao {
+            padding: 17px;
+        }
+
+        .minha-publicacao-topo {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .conta-menu {
+            gap: 0;
+            justify-content: space-around;
+            padding: 17px 8px;
+        }
+    }
+
+
+
+
+}

@@ -1,3 +1,4 @@
+
 import './index.scss';
 import { useEffect, useState } from 'react';
 import Publicaçoes from '../../components/publicaçoes/publicaçoes';
@@ -115,6 +116,16 @@ export default function Feed() {
     const [salvandoAviso, setSalvandoAviso] = useState(false);
     const [erroAviso, setErroAviso] = useState('');
 
+    const [idContaAtual, setIdContaAtual] = useState(null);
+
+    // Estados dos comentários
+    const [comentariosAbertos, setComentariosAbertos] = useState(null);
+    const [comentarios, setComentarios] = useState([]);
+    const [novoComentario, setNovoComentario] = useState('');
+    const [carregandoComentarios, setCarregandoComentarios] = useState(false);
+    const [enviandoComentario, setEnviandoComentario] = useState(false);
+    const [erroComentario, setErroComentario] = useState('');
+
     function sair() {
         localStorage.removeItem('token');
         window.location.href = '/login';
@@ -143,6 +154,30 @@ export default function Feed() {
         event.target.value = '';
     }
 
+    // Buscar os dados da conta conectada
+    async function buscarContaAtual() {
+        const token = localStorage.getItem('token');
+
+        try {
+            const resposta = await fetch('http://localhost:5050/conta', {
+                headers: {
+                    'x-access-token': token
+                }
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || 'Erro ao buscar conta.');
+            }
+
+            setIdContaAtual(Number(dados.id));
+
+        } catch (err) {
+            console.error('Erro ao buscar conta:', err);
+        }
+    }
+
     async function buscarPostagens() {
         const token = localStorage.getItem('token');
 
@@ -168,7 +203,10 @@ export default function Feed() {
 
     useEffect(() => {
         buscarPostagens();
+        buscarContaAtual();
+
         const intervalo = setInterval(buscarPostagens, 60 * 1000);
+
         return () => clearInterval(intervalo);
     }, []);
 
@@ -197,6 +235,155 @@ export default function Feed() {
             await buscarPostagens();
         } catch (error) {
             setErro(error.message);
+        }
+    }
+
+    async function compartilharPublicacao(postagem) {
+        const token = localStorage.getItem('token');
+        const link = window.location.origin + '/feed';
+
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title: 'Bairro+',
+                    text: postagem.conteudo,
+                    url: link
+                });
+            } else if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(link);
+                alert('Link copiado!');
+            } else {
+                throw new Error('Não foi possível compartilhar neste navegador.');
+            }
+
+            const resposta = await fetch(
+                `http://localhost:5050/postagem/${postagem.id}/compartilhamento`,
+                {
+                    method: 'POST',
+                    headers: { 'x-access-token': token }
+                }
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || 'Não foi possível registrar o compartilhamento.');
+            }
+
+            await buscarPostagens();
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                setErro(error.message);
+            }
+        }
+    }
+
+    // Buscar comentários de uma publicação
+    async function buscarComentarios(idPostagem) {
+        const token = localStorage.getItem('token');
+
+        setCarregandoComentarios(true);
+        setErroComentario('');
+
+        try {
+            const resposta = await fetch(
+                `http://localhost:5050/postagem/${idPostagem}/comentarios`,
+                {
+                    headers: { 'x-access-token': token }
+                }
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || 'Não foi possível carregar os comentários.');
+            }
+
+            setComentarios(dados);
+        } catch (error) {
+            setErroComentario(error.message);
+        } finally {
+            setCarregandoComentarios(false);
+        }
+    }
+
+    // Abrir ou fechar comentários
+    async function alternarComentarios(idPostagem) {
+        if (comentariosAbertos === idPostagem) {
+            setComentariosAbertos(null);
+            setComentarios([]);
+            setNovoComentario('');
+            setErroComentario('');
+            return;
+        }
+
+        setComentariosAbertos(idPostagem);
+        setNovoComentario('');
+        await buscarComentarios(idPostagem);
+    }
+
+    // Enviar comentário
+    async function enviarComentario(idPostagem) {
+        const texto = novoComentario.trim();
+
+        if (!texto) {
+            setErroComentario('Digite um comentário.');
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        setEnviandoComentario(true);
+        setErroComentario('');
+
+        try {
+            const resposta = await fetch(
+                `http://localhost:5050/postagem/${idPostagem}/comentario`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-token': token
+                    },
+                    body: JSON.stringify({ conteudo: texto })
+                }
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || 'Não foi possível enviar o comentário.');
+            }
+
+            setNovoComentario('');
+            await buscarComentarios(idPostagem);
+        } catch (error) {
+            setErroComentario(error.message);
+        } finally {
+            setEnviandoComentario(false);
+        }
+    }
+
+    // Excluir comentário
+    async function apagarComentario(idComentario, idPostagem) {
+        const token = localStorage.getItem('token');
+
+        try {
+            const resposta = await fetch(
+                `http://localhost:5050/comentario/${idComentario}`,
+                {
+                    method: 'DELETE',
+                    headers: { 'x-access-token': token }
+                }
+            );
+
+            if (!resposta.ok) {
+                const dados = await resposta.json();
+                throw new Error(dados.erro || 'Não foi possível excluir o comentário.');
+            }
+
+            await buscarComentarios(idPostagem);
+        } catch (error) {
+            setErroComentario(error.message);
         }
     }
 
@@ -323,13 +510,17 @@ export default function Feed() {
     const postagensFiltradas = postagens.filter((postagem) => (
         filtro === 'todos' || postagem.categoria === filtro
     ));
-    const avisosRecentes = postagens.filter((postagem) => postagem.categoria === 'aviso').slice(0, 5);
+
+    const avisosRecentes = postagens
+        .filter((postagem) => postagem.categoria === 'aviso')
+        .slice(0, 5);
 
     return (
         <div className="pag-feed">
             <header className="feed-topbar">
                 <a href="/feed" className="feed-logo" aria-label="Bairro+, início">
-                    <img className="feed-logo-image"
+                    <img
+                        className="feed-logo-image"
                         src="/assets/images/logo3.png"
                         alt="Bairro+ — Juntos por um bairro mais conectado"
                     />
@@ -345,12 +536,15 @@ export default function Feed() {
                         <Icon name="bell" size={22} />
                     </button>
 
-
-
-                      <button className="header-icon-button" type="button" onClick={sair}
-                        aria-label="Sair" title="Sair">
+                    <button
+                        className="header-icon-button"
+                        type="button"
+                        onClick={sair}
+                        aria-label="Sair"
+                        title="Sair"
+                    >
                         <Icon name="logout" size={22} />
-                      </button>
+                    </button>
                 </div>
             </header>
 
@@ -362,6 +556,7 @@ export default function Feed() {
                                 <div className="avatar-placeholder">
                                     <Icon name="person" size={23} />
                                 </div>
+
                                 <form id="composer-form" className="composer-form" onSubmit={publicar}>
                                     <input
                                         type="text"
@@ -388,14 +583,17 @@ export default function Feed() {
                                         onChange={adicionarFoto}
                                         hidden
                                     />
+
                                     <label className="composer-tool photo-tool" htmlFor="foto">
                                         <Icon name="camera" size={16} />
                                         <span>Foto</span>
                                     </label>
+
                                     <button className="composer-tool" type="button" disabled title="Disponível em breve">
                                         <Icon name="video" size={16} />
                                         <span>Vídeo</span>
                                     </button>
+
                                     <button className="composer-tool" type="button" disabled title="Disponível em breve">
                                         <Icon name="pin" size={16} />
                                         <span>Localização</span>
@@ -470,11 +668,11 @@ export default function Feed() {
                                             <div className="avatar-placeholder post-avatar">
                                                 <Icon name="person" size={22} />
                                             </div>
+
                                             <div className="post-author">
                                                 <strong>{postagem.nome}</strong>
                                                 <span>{formatarData(postagem.data_postagem)}</span>
                                             </div>
-
                                         </div>
 
                                         <div className="post-content">
@@ -486,7 +684,9 @@ export default function Feed() {
                                                     {postagem.categoria === 'ocorrencia' && 'Ocorrência'}
                                                 </span>
                                             )}
+
                                             <p>{postagem.conteudo}</p>
+
                                             {postagem.foto && (
                                                 <img
                                                     className="post-image"
@@ -511,15 +711,100 @@ export default function Feed() {
                                                 />
                                                 <span>{postagem.total_curtidas || 0}</span>
                                             </button>
-                                            <span className="post-action-static">
+
+                                            <button
+                                                className="post-action-static"
+                                                type="button"
+                                                onClick={() => alternarComentarios(postagem.id)}
+                                            >
                                                 <Icon name="comment" size={17} />
                                                 Comentários
-                                            </span>
-                                            <span className="post-action-static">
+                                            </button>
+
+                                            <button
+                                                className="post-action-static"
+                                                type="button"
+                                                onClick={() => compartilharPublicacao(postagem)}
+                                            >
                                                 <Icon name="share" size={17} />
                                                 Compartilhar
-                                            </span>
+                                                <span>{postagem.total_compartilhamentos || 0}</span>
+                                            </button>
                                         </div>
+
+                                        {comentariosAbertos === postagem.id && (
+                                            <section className="comentarios-area">
+                                                <h3>Comentários</h3>
+
+                                                <form
+                                                    className="comentario-form"
+                                                    onSubmit={(event) => {
+                                                        event.preventDefault();
+                                                        enviarComentario(postagem.id);
+                                                    }}
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        value={novoComentario}
+                                                        onChange={(event) => setNovoComentario(event.target.value)}
+                                                        placeholder="Escreva um comentário..."
+                                                        maxLength={1000}
+                                                    />
+
+                                                    <button
+                                                        type="submit"
+                                                        disabled={enviandoComentario || !novoComentario.trim()}
+                                                    >
+                                                        {enviandoComentario ? 'Enviando...' : 'Enviar'}
+                                                    </button>
+                                                </form>
+
+                                                {erroComentario && (
+                                                    <p className="comentario-erro" role="alert">
+                                                        {erroComentario}
+                                                    </p>
+                                                )}
+
+                                                {carregandoComentarios ? (
+                                                    <p className="comentarios-vazios">Carregando comentários...</p>
+                                                ) : comentarios.length === 0 ? (
+                                                    <p className="comentarios-vazios">
+                                                        Ainda não há comentários. Seja o primeiro!
+                                                    </p>
+                                                ) : (
+                                                    <div className="comentarios-lista">
+                                                        {comentarios.map((comentario) => (
+                                                            <article className="comentario-item" key={comentario.id}>
+                                                                <div className="comentario-avatar">
+                                                                    <Icon name="person" size={18} />
+                                                                </div>
+
+                                                                <div className="comentario-conteudo">
+                                                                    <div className="comentario-cabecalho">
+                                                                        <strong>{comentario.nome}</strong>
+                                                                        <span>{formatarData(comentario.data_comentario)}</span>
+                                                                    </div>
+
+                                                                    <p>{comentario.conteudo}</p>
+
+                                                                    {idContaAtual !== null &&
+                                                                        Number(comentario.id_conta) === idContaAtual && (
+                                                                            <button
+                                                                                className="comentario-excluir"
+                                                                                type="button"
+                                                                                onClick={() => apagarComentario(comentario.id, postagem.id)}
+                                                                            >
+                                                                                <Icon name="trash" size={14} />
+                                                                                Excluir
+                                                                            </button>
+                                                                        )}
+                                                                </div>
+                                                            </article>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </section>
+                                        )}
                                     </article>
                                 ))}
                             </div>
@@ -538,6 +823,7 @@ export default function Feed() {
                                 <Icon name="megaphone" size={23} />
                                 <h2>Avisos recentes</h2>
                             </div>
+
                             <button
                                 className="adicionar-aviso"
                                 type="button"
@@ -553,12 +839,15 @@ export default function Feed() {
                         <div className="notice-list">
                             {avisosRecentes.map((aviso) => (
                                 <article className="notice-item" key={aviso.id}>
-                                    <span className="notice-icon"><Icon name="megaphone" size={18} /></span>
+                                    <span className="notice-icon">
+                                        <Icon name="megaphone" size={18} />
+                                    </span>
 
                                     <span className="notice-copy">
                                         <strong>{aviso.titulo || aviso.conteudo}</strong>
                                         <span>{formatarDataAviso(aviso.data_evento || aviso.data_postagem)}</span>
                                     </span>
+
                                     {Number(aviso.minha) === 1 && (
                                         <button
                                             className="delete-post-button"
@@ -572,9 +861,11 @@ export default function Feed() {
                                     )}
                                 </article>
                             ))}
+
                             {erroAviso && !modalAvisoAberto && (
                                 <p className="avisos-vazios" role="alert">{erroAviso}</p>
                             )}
+
                             {avisosRecentes.length === 0 && (
                                 <p className="avisos-vazios">Ainda não há avisos. Adicione o primeiro!</p>
                             )}
@@ -592,6 +883,7 @@ export default function Feed() {
                         aria-labelledby="notice-modal-title"
                     >
                         <h2 id="notice-modal-title">Adicionar aviso</h2>
+
                         <form onSubmit={adicionarAviso}>
                             <label>
                                 Título
@@ -603,6 +895,7 @@ export default function Feed() {
                                     required
                                 />
                             </label>
+
                             <div className="notice-date-time">
                                 <label>
                                     Dia
@@ -613,6 +906,7 @@ export default function Feed() {
                                         required
                                     />
                                 </label>
+
                                 <label>
                                     Horário
                                     <input
@@ -623,7 +917,9 @@ export default function Feed() {
                                     />
                                 </label>
                             </div>
+
                             {erroAviso && <p className="feed-error" role="alert">{erroAviso}</p>}
+
                             <div className="notice-modal-actions">
                                 <button
                                     className="notice-cancel-button"
@@ -633,6 +929,7 @@ export default function Feed() {
                                 >
                                     Cancelar
                                 </button>
+
                                 <button className="publish-button" type="submit" disabled={salvandoAviso}>
                                     {salvandoAviso ? 'Salvando...' : 'Adicionar aviso'}
                                 </button>
@@ -647,10 +944,12 @@ export default function Feed() {
                     <Icon name="home" size={19} />
                     <span>Início</span>
                 </a>
+
                 <a className="bottom-nav-item" href="/comunidade">
                     <Icon name="people" size={19} />
                     <span>Comunidade</span>
                 </a>
+
                 <a className="bottom-nav-item" href="/mapa">
                     <Icon name="map" size={19} />
                     <span>Mapa</span>

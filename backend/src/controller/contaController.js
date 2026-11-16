@@ -1,6 +1,7 @@
 
 import * as service from '../service/contaService.js';
 import { Router } from 'express';
+import { getAuthentication } from '../utils/jwt.js';
 
 const endpoints = Router();
 
@@ -14,12 +15,12 @@ endpoints.post('/conta', async (req, resp) => {
 
         resp.status(201).send({ token });
     } catch (err) {
-    console.error('ERRO AO CADASTRAR:', err);
+        console.error('ERRO AO CADASTRAR:', err);
 
-    resp.status(400).send({
-        erro: err.message
-    });
-}
+        resp.status(400).send({
+            erro: err.message
+        });
+    }
 });
 
 endpoints.post('/conta/login', async (req, resp) => {
@@ -36,21 +37,12 @@ endpoints.post('/conta/login', async (req, resp) => {
     }
 });
 
-endpoints.post('/conta', async (req, resp) => {
+endpoints.get('/conta', getAuthentication(), async (req, resp) => {
     try {
-        console.log('DADOS RECEBIDOS:', req.body);
+        const conta = await service.buscarConta(req.user.id);
 
-        const conta = req.body;
-
-        await service.saveConta(conta);
-
-        const token = await service.login(conta.email, conta.senha);
-
-        resp.status(201).send({ token });
-
+        resp.send(conta);
     } catch (err) {
-        console.error('ERRO AO CADASTRAR:', err);
-
         resp.status(400).send({
             erro: err.message
         });

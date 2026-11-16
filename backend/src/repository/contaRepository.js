@@ -43,3 +43,17 @@ export async function login(email, senha) {
   const [linhas] = await con.query(command, [email, senha])
   return linhas[0];
 }
+
+export async function getContaById(id) {
+    const command = `
+        select id,
+               nome,
+               email,
+               telefone
+          from conta
+         where id = ?
+    `;
+
+    const [linhas] = await con.query(command, [id]);
+    return linhas[0];
+}

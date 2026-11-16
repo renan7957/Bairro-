@@ -21,3 +21,13 @@ export async function login(email, senha) {
   let token = generateToken(conta);
   return token;
 }
+
+export async function buscarConta(id) {
+    let conta = await db.getContaById(id);
+
+    if (conta == null) {
+        throw new Error('Conta não encontrada.');
+    }
+
+    return conta;
+}

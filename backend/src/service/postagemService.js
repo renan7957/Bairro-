@@ -111,3 +111,12 @@ export async function apagarPostagem(idConta, idPostagem) {
 
     return resultado.foto;
 }
+
+// Compartilhar publicação
+export async function compartilharPostagem(idConta, idPostagem) {
+    if (!Number.isInteger(idPostagem) || idPostagem <= 0) {
+        throw new Error('Publicação inválida.');
+    }
+
+    return db.compartilharPostagem(idConta, idPostagem);
+}

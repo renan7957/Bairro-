@@ -113,6 +113,23 @@ endpoints.delete('/postagem/:id/curtida', getAuthentication(), async (req, resp)
     }
 });
 
+// Compartilhar publicação
+endpoints.post('/postagem/:id/compartilhamento', getAuthentication(), async (req, resp) => {
+    try {
+        const idConta = req.user.id;
+        const idPostagem = Number(req.params.id);
+
+        await service.compartilharPostagem(idConta, idPostagem);
+
+        resp.status(201).send({
+            mensagem: 'Publicação compartilhada!'
+        });
+
+    } catch (err) {
+        resp.status(400).send({ erro: err.message });
+    }
+});
+
 // Apagar publicação
 endpoints.delete('/postagem/:id', getAuthentication(), async (req, resp) => {
     try {
