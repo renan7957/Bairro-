@@ -1,14 +1,72 @@
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const API_URL = 'http://localhost:5050';
 const TILE_SIZE = 256;
 const DEFAULT_CENTER = { latitude: -23.5505, longitude: -46.6333 };
+
 const CATEGORIAS = [
     { value: 'ocorrencia', label: 'Problema no bairro', symbol: '!' },
     { value: 'aviso', label: 'Aviso', symbol: 'i' },
     { value: 'evento', label: 'Evento', symbol: '★' },
     { value: 'duvida', label: 'Dúvida', symbol: '?' }
 ];
+
+function Icon({ name, size = 19 }) {
+    const common = {
+        width: size,
+        height: size,
+        viewBox: '0 0 24 24',
+        fill: 'none',
+        stroke: 'currentColor',
+        strokeWidth: 1.8,
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round'
+    };
+
+    if (name === 'home') {
+        return (
+            <svg {...common}>
+                <path d="m3 10 9-7 9 7" />
+                <path d="M5 9v12h14V9" />
+                <path d="M9 21v-7h6v7" />
+            </svg>
+        );
+    }
+
+    if (name === 'people') {
+        return (
+            <svg {...common}>
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+        );
+    }
+
+    if (name === 'map') {
+        return (
+            <svg {...common}>
+                <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z" />
+                <path d="M9 3v15" />
+                <path d="M15 6v15" />
+                <circle cx="12" cy="10" r="2" />
+            </svg>
+        );
+    }
+
+    if (name === 'user') {
+        return (
+            <svg {...common}>
+                <circle cx="12" cy="8" r="4" />
+                <path d="M5 21a7 7 0 0 1 14 0" />
+            </svg>
+        );
+    }
+
+    return null;
+}
 
 function limitarLatitude(latitude) {
     return Math.max(-85.05112878, Math.min(85.05112878, latitude));
@@ -49,6 +107,7 @@ function obterTiles(centro, zoom, tamanho) {
     for (let x = xInicial; x <= xFinal; x += 1) {
         for (let y = yInicial; y <= yFinal; y += 1) {
             const xUrl = ((x % numeroTiles) + numeroTiles) % numeroTiles;
+
             tiles.push({
                 key: `${zoom}-${x}-${y}`,
                 url: `https://tile.openstreetmap.org/${zoom}/${xUrl}/${y}.png`,
@@ -67,6 +126,7 @@ function categoriaDoPost(postagem) {
 
 function formatarData(data) {
     if (!data) return '';
+
     const dataFormatada = new Date(data);
     if (Number.isNaN(dataFormatada.getTime())) return '';
 
@@ -81,6 +141,7 @@ function formatarData(data) {
 export default function Mapa() {
     const containerRef = useRef(null);
     const arrasteRef = useRef(null);
+
     const [tamanho, setTamanho] = useState({ width: 0, height: 0 });
     const [centro, setCentro] = useState(DEFAULT_CENTER);
     const [zoom, setZoom] = useState(13);
@@ -109,6 +170,7 @@ export default function Mapa() {
                 height: entrada.contentRect.height
             });
         });
+
         observador.observe(container);
 
         return () => observador.disconnect();
@@ -122,10 +184,13 @@ export default function Mapa() {
                 const resposta = await fetch(`${API_URL}/postagem`, {
                     headers: { 'x-access-token': localStorage.getItem('token') }
                 });
+
                 const dados = await resposta.json();
+
                 if (!resposta.ok) {
                     throw new Error(dados.erro || 'Não foi possível carregar os locais do mapa.');
                 }
+
                 if (ativo) setPostagens(Array.isArray(dados) ? dados : []);
             } catch (erroCarregamento) {
                 if (ativo) setErro(erroCarregamento.message);
@@ -135,20 +200,29 @@ export default function Mapa() {
         }
 
         carregarPostagens();
+
         const intervalo = setInterval(carregarPostagens, 60 * 1000);
+
         return () => {
             ativo = false;
             clearInterval(intervalo);
         };
     }, []);
 
-    const tiles = useMemo(() => obterTiles(centro, zoom, tamanho), [centro, zoom, tamanho]);
-    const pontosNoMapa = useMemo(() => postagens.filter((postagem) => (
-        Number.isFinite(Number(postagem.latitude))
-        && Number.isFinite(Number(postagem.longitude))
-        && postagem.latitude !== null
-        && postagem.longitude !== null
-    )), [postagens]);
+    const tiles = useMemo(
+        () => obterTiles(centro, zoom, tamanho),
+        [centro, zoom, tamanho]
+    );
+
+    const pontosNoMapa = useMemo(
+        () => postagens.filter((postagem) => (
+            Number.isFinite(Number(postagem.latitude))
+            && Number.isFinite(Number(postagem.longitude))
+            && postagem.latitude !== null
+            && postagem.longitude !== null
+        )),
+        [postagens]
+    );
 
     function sair() {
         localStorage.removeItem('token');
@@ -160,6 +234,7 @@ export default function Mapa() {
             latitude: Number(latitude),
             longitude: Number(longitude)
         };
+
         setPontoSelecionado(novoPonto);
         setCentro(novoPonto);
         setZoom((valor) => Math.max(valor, 16));
@@ -170,6 +245,7 @@ export default function Mapa() {
 
     async function localizarRua(event) {
         event.preventDefault();
+
         const rua = endereco.trim();
         const municipio = cidade.trim();
 
@@ -189,12 +265,17 @@ export default function Mapa() {
                 countrycodes: 'br',
                 q: `${rua}, ${municipio}`
             });
-            const resposta = await fetch(`https://nominatim.openstreetmap.org/search?${consulta}`);
+
+            const resposta = await fetch(
+                `https://nominatim.openstreetmap.org/search?${consulta}`
+            );
+
             if (!resposta.ok) {
                 throw new Error('O serviço de busca de endereços está indisponível. Tente novamente.');
             }
 
             const resultados = await resposta.json();
+
             if (!resultados.length) {
                 throw new Error('Não encontrei esse endereço. Confira a rua e a cidade ou marque o ponto diretamente no mapa.');
             }
@@ -209,10 +290,12 @@ export default function Mapa() {
 
     async function publicarOcorrencia(event) {
         event.preventDefault();
+
         if (!pontoSelecionado) {
             setErro('Localize a rua ou clique no mapa para escolher o ponto antes de publicar.');
             return;
         }
+
         if (!titulo.trim()) {
             setErro('Informe um título para o aviso do mapa.');
             return;
@@ -239,7 +322,9 @@ export default function Mapa() {
                     longitude: pontoSelecionado.longitude
                 })
             });
+
             const dados = await resposta.json();
+
             if (!resposta.ok) {
                 throw new Error(dados.erro || 'Não foi possível publicar este local.');
             }
@@ -256,6 +341,7 @@ export default function Mapa() {
                 data_postagem: new Date().toISOString(),
                 minha: 1
             }, ...lista]);
+
             setTitulo('');
             setDescricao('');
             setPontoSelecionado(null);
@@ -269,7 +355,9 @@ export default function Mapa() {
 
     function iniciarArraste(event) {
         if (event.target.closest('button, a')) return;
+
         const pixelCentro = projetar(centro.latitude, centro.longitude, zoom);
+
         arrasteRef.current = {
             pointerId: event.pointerId,
             x: event.clientX,
@@ -278,33 +366,47 @@ export default function Mapa() {
             centroY: pixelCentro.y,
             moveu: false
         };
+
         setArrastando(true);
         event.currentTarget.setPointerCapture(event.pointerId);
     }
 
     function moverMapa(event) {
         const arraste = arrasteRef.current;
+
         if (!arraste || arraste.pointerId !== event.pointerId) return;
 
         const deltaX = event.clientX - arraste.x;
         const deltaY = event.clientY - arraste.y;
-        if (Math.abs(deltaX) + Math.abs(deltaY) > 4) arraste.moveu = true;
 
-        setCentro(desprojetar(arraste.centroX - deltaX, arraste.centroY - deltaY, zoom));
+        if (Math.abs(deltaX) + Math.abs(deltaY) > 4) {
+            arraste.moveu = true;
+        }
+
+        setCentro(
+            desprojetar(
+                arraste.centroX - deltaX,
+                arraste.centroY - deltaY,
+                zoom
+            )
+        );
     }
 
     function finalizarArraste(event) {
         const arraste = arrasteRef.current;
+
         if (!arraste || arraste.pointerId !== event.pointerId) return;
 
         if (!arraste.moveu && containerRef.current) {
             const retangulo = containerRef.current.getBoundingClientRect();
             const pixelCentro = projetar(centro.latitude, centro.longitude, zoom);
+
             const ponto = desprojetar(
                 pixelCentro.x + event.clientX - retangulo.left - retangulo.width / 2,
                 pixelCentro.y + event.clientY - retangulo.top - retangulo.height / 2,
                 zoom
             );
+
             setPontoSelecionado(ponto);
             setPostagemAtiva(null);
             setMensagem('Ponto marcado manualmente no mapa.');
@@ -323,7 +425,10 @@ export default function Mapa() {
 
         navigator.geolocation.getCurrentPosition(
             ({ coords }) => {
-                setCentro({ latitude: coords.latitude, longitude: coords.longitude });
+                setCentro({
+                    latitude: coords.latitude,
+                    longitude: coords.longitude
+                });
                 setZoom(16);
                 setErro('');
             },
@@ -333,7 +438,11 @@ export default function Mapa() {
     }
 
     function focarPostagem(postagem) {
-        const local = { latitude: Number(postagem.latitude), longitude: Number(postagem.longitude) };
+        const local = {
+            latitude: Number(postagem.latitude),
+            longitude: Number(postagem.longitude)
+        };
+
         setCentro(local);
         setZoom((valor) => Math.max(valor, 16));
         setPostagemAtiva(postagem.id);
@@ -341,7 +450,11 @@ export default function Mapa() {
 
     function posicionarNoMapa(local) {
         const pixelCentro = projetar(centro.latitude, centro.longitude, zoom);
-        const pixelPonto = projetar(Number(local.latitude), Number(local.longitude), zoom);
+        const pixelPonto = projetar(
+            Number(local.latitude),
+            Number(local.longitude),
+            zoom
+        );
 
         return {
             left: pixelPonto.x - pixelCentro.x + tamanho.width / 2,
@@ -357,8 +470,12 @@ export default function Mapa() {
                 <a href="/feed" className="mapa-logo" aria-label="Bairro+, voltar ao feed">
                     <img src="/assets/images/logo3.png" alt="Bairro+" />
                 </a>
+
                 <h1>Mapa do bairro</h1>
-                <button className="mapa-sair" type="button" onClick={sair}>Sair</button>
+
+                <button className="mapa-sair" type="button" onClick={sair}>
+                    Sair
+                </button>
             </header>
 
             <main className="mapa-content">
@@ -387,6 +504,7 @@ export default function Mapa() {
 
                         {pontosNoMapa.map((postagem) => {
                             const posicao = posicionarNoMapa(postagem);
+
                             if (
                                 posicao.left < -30
                                 || posicao.top < -46
@@ -395,6 +513,7 @@ export default function Mapa() {
                             ) return null;
 
                             const tipo = categoriaDoPost(postagem);
+
                             return (
                                 <button
                                     key={postagem.id}
@@ -406,7 +525,9 @@ export default function Mapa() {
                                     onPointerDown={(event) => event.stopPropagation()}
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        setPostagemAtiva(postagemAtiva === postagem.id ? null : postagem.id);
+                                        setPostagemAtiva(
+                                            postagemAtiva === postagem.id ? null : postagem.id
+                                        );
                                     }}
                                 >
                                     <span>{tipo.symbol}</span>
@@ -416,6 +537,7 @@ export default function Mapa() {
 
                         {pontoSelecionado && (() => {
                             const posicao = posicionarNoMapa(pontoSelecionado);
+
                             return (
                                 <span
                                     className="mapa-pin mapa-pin-pendente"
@@ -436,18 +558,34 @@ export default function Mapa() {
                                 >
                                     <strong>{postagem.titulo || postagem.conteudo}</strong>
                                     <span>{postagem.endereco || 'Endereço não informado'}</span>
+
                                     {postagem.descricao && postagem.descricao !== postagem.conteudo && (
                                         <p>{postagem.descricao}</p>
                                     )}
+
                                     <small>{formatarData(postagem.data_postagem)}</small>
                                 </div>
                             ) : null
                         ))}
 
                         <div className="mapa-zoom-controls" aria-label="Controles de zoom">
-                            <button type="button" onClick={() => setZoom((valor) => Math.min(19, valor + 1))} aria-label="Aumentar zoom">+</button>
-                            <button type="button" onClick={() => setZoom((valor) => Math.max(4, valor - 1))} aria-label="Diminuir zoom">−</button>
+                            <button
+                                type="button"
+                                onClick={() => setZoom((valor) => Math.min(19, valor + 1))}
+                                aria-label="Aumentar zoom"
+                            >
+                                +
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setZoom((valor) => Math.max(4, valor - 1))}
+                                aria-label="Diminuir zoom"
+                            >
+                                −
+                            </button>
                         </div>
+
                         <button
                             className="mapa-localizacao-button"
                             type="button"
@@ -457,11 +595,22 @@ export default function Mapa() {
                         >
                             ◎
                         </button>
-                        <div className="mapa-instrucao">Arraste para mover · Clique para marcar um local</div>
+
+                        <div className="mapa-instrucao">
+                            Arraste para mover · Clique para marcar um local
+                        </div>
+
                         <div className="mapa-atribuicao">
-                            © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>
+                            © <a
+                                href="https://www.openstreetmap.org/copyright"
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                OpenStreetMap
+                            </a>
                         </div>
                     </div>
+
                     {postagemAtiva && (
                         <button
                             type="button"
@@ -477,6 +626,7 @@ export default function Mapa() {
                     <section className="mapa-card mapa-form-card">
                         <div className="mapa-card-heading">
                             <span className="mapa-heading-icon">⌖</span>
+
                             <div>
                                 <h2>Adicionar ao mapa</h2>
                                 <p>Compartilhe um local importante do bairro.</p>
@@ -486,12 +636,18 @@ export default function Mapa() {
                         <form className="mapa-form" onSubmit={publicarOcorrencia}>
                             <label>
                                 O que está acontecendo?
-                                <select value={categoria} onChange={(event) => setCategoria(event.target.value)}>
+                                <select
+                                    value={categoria}
+                                    onChange={(event) => setCategoria(event.target.value)}
+                                >
                                     {CATEGORIAS.map((item) => (
-                                        <option key={item.value} value={item.value}>{item.label}</option>
+                                        <option key={item.value} value={item.value}>
+                                            {item.label}
+                                        </option>
                                     ))}
                                 </select>
                             </label>
+
                             <label>
                                 Título
                                 <input
@@ -503,6 +659,7 @@ export default function Mapa() {
                                     required
                                 />
                             </label>
+
                             <label>
                                 Rua ou endereço
                                 <input
@@ -517,6 +674,7 @@ export default function Mapa() {
                                     required
                                 />
                             </label>
+
                             <label>
                                 Cidade
                                 <input
@@ -530,6 +688,7 @@ export default function Mapa() {
                                     required
                                 />
                             </label>
+
                             <button
                                 className="mapa-localizar-button"
                                 type="button"
@@ -538,6 +697,7 @@ export default function Mapa() {
                             >
                                 {localizando ? 'Localizando rua...' : 'Localizar no mapa'}
                             </button>
+
                             <label>
                                 Descrição (opcional)
                                 <textarea
@@ -554,12 +714,27 @@ export default function Mapa() {
                                     Local marcado no mapa. Clique no mapa para ajustar o ponto.
                                 </p>
                             )}
-                            {erro && <p className="mapa-feedback mapa-erro" role="alert">{erro}</p>}
-                            {mensagem && <p className="mapa-feedback mapa-sucesso" role="status">{mensagem}</p>}
 
-                            <button className="mapa-publicar-button" type="submit" disabled={salvando || !pontoSelecionado}>
+                            {erro && (
+                                <p className="mapa-feedback mapa-erro" role="alert">
+                                    {erro}
+                                </p>
+                            )}
+
+                            {mensagem && (
+                                <p className="mapa-feedback mapa-sucesso" role="status">
+                                    {mensagem}
+                                </p>
+                            )}
+
+                            <button
+                                className="mapa-publicar-button"
+                                type="submit"
+                                disabled={salvando || !pontoSelecionado}
+                            >
                                 {salvando ? 'Publicando...' : 'Publicar no mapa'}
                             </button>
+
                             <small className="mapa-privacidade">
                                 A busca do endereço é feita pelo OpenStreetMap. O endereço informado fica visível no mapa.
                             </small>
@@ -568,10 +743,13 @@ export default function Mapa() {
 
                     <section className="mapa-card mapa-legenda-card">
                         <h2>Ícones no mapa</h2>
+
                         <div className="mapa-legenda">
                             {CATEGORIAS.map((item) => (
                                 <span key={item.value}>
-                                    <i className={`mapa-legenda-pin mapa-pin-${item.value}`}>{item.symbol}</i>
+                                    <i className={`mapa-legenda-pin mapa-pin-${item.value}`}>
+                                        {item.symbol}
+                                    </i>
                                     {item.label}
                                 </span>
                             ))}
@@ -583,10 +761,17 @@ export default function Mapa() {
                             <h2>Locais recentes</h2>
                             <span>{pontosNoMapa.length}</span>
                         </div>
-                        {carregando && <p className="mapa-sem-itens">Carregando locais...</p>}
-                        {!carregando && marcadoresRecentes.length === 0 && (
-                            <p className="mapa-sem-itens">Ainda não há locais marcados. Adicione o primeiro!</p>
+
+                        {carregando && (
+                            <p className="mapa-sem-itens">Carregando locais...</p>
                         )}
+
+                        {!carregando && marcadoresRecentes.length === 0 && (
+                            <p className="mapa-sem-itens">
+                                Ainda não há locais marcados. Adicione o primeiro!
+                            </p>
+                        )}
+
                         <div className="mapa-lista">
                             {marcadoresRecentes.map((postagem) => (
                                 <button
@@ -598,6 +783,7 @@ export default function Mapa() {
                                     <i className={`mapa-legenda-pin mapa-pin-${categoriaDoPost(postagem).value}`}>
                                         {categoriaDoPost(postagem).symbol}
                                     </i>
+
                                     <span>
                                         <strong>{postagem.titulo || postagem.conteudo}</strong>
                                         <small>{postagem.endereco || 'Endereço não informado'}</small>
@@ -609,10 +795,30 @@ export default function Mapa() {
                 </aside>
             </main>
 
-            <nav className="mapa-bottom-nav" aria-label="Navegação principal">
-                <a href="/feed"><span>⌂</span>Início</a>
-                <a href="/comunidade"><span>♧</span>Comunidade</a>
-                <a href="/mapa" aria-current="page"><span>⌖</span>Mapa</a>
+            <nav className="feed-bottom-nav" aria-label="Navegação principal">
+                <a href="/feed" className="bottom-nav-item">
+                    <Icon name="home" size={19} />
+                    <span>Início</span>
+                </a>
+
+                <a href="/comunidade" className="bottom-nav-item">
+                    <Icon name="people" size={19} />
+                    <span>Comunidade</span>
+                </a>
+
+                <a
+                    href="/mapa"
+                    className="bottom-nav-item is-current"
+                    aria-current="page"
+                >
+                    <Icon name="map" size={19} />
+                    <span>Mapa</span>
+                </a>
+
+                <a href="/conta" className="bottom-nav-item">
+                    <Icon name="user" size={19} />
+                    <span>Conta</span>
+                </a>
             </nav>
         </div>
     );

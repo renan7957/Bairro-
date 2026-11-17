@@ -118,7 +118,6 @@ export default function Feed() {
 
     const [idContaAtual, setIdContaAtual] = useState(null);
 
-    // Estados dos comentários
     const [comentariosAbertos, setComentariosAbertos] = useState(null);
     const [comentarios, setComentarios] = useState([]);
     const [novoComentario, setNovoComentario] = useState('');
@@ -154,7 +153,6 @@ export default function Feed() {
         event.target.value = '';
     }
 
-    // Buscar os dados da conta conectada
     async function buscarContaAtual() {
         const token = localStorage.getItem('token');
 
@@ -182,10 +180,11 @@ export default function Feed() {
         const token = localStorage.getItem('token');
 
         try {
-            const resposta = await fetch('http://localhost:5050/postagem', {
+            const resposta = await fetch('http://localhost:5050/postagem?comunidade=geral', {
                 method: 'GET',
                 headers: { 'x-access-token': token }
             });
+
             const dados = await resposta.json();
 
             if (!resposta.ok) {
@@ -194,6 +193,7 @@ export default function Feed() {
 
             setPostagens(dados);
             setErro('');
+
         } catch (error) {
             setErro(error.message);
         } finally {
@@ -278,7 +278,6 @@ export default function Feed() {
         }
     }
 
-    // Buscar comentários de uma publicação
     async function buscarComentarios(idPostagem) {
         const token = localStorage.getItem('token');
 
@@ -307,7 +306,6 @@ export default function Feed() {
         }
     }
 
-    // Abrir ou fechar comentários
     async function alternarComentarios(idPostagem) {
         if (comentariosAbertos === idPostagem) {
             setComentariosAbertos(null);
@@ -322,7 +320,6 @@ export default function Feed() {
         await buscarComentarios(idPostagem);
     }
 
-    // Enviar comentário
     async function enviarComentario(idPostagem) {
         const texto = novoComentario.trim();
 
@@ -363,7 +360,6 @@ export default function Feed() {
         }
     }
 
-    // Excluir comentário
     async function apagarComentario(idComentario, idPostagem) {
         const token = localStorage.getItem('token');
 
@@ -665,6 +661,18 @@ export default function Feed() {
                                 {postagensFiltradas.map((postagem) => (
                                     <article className="post-card" key={postagem.id}>
                                         <div className="post-header">
+                                            {Number(postagem.minha) === 1 && (
+                                                <button
+                                                    className="delete-post-card-button"
+                                                    type="button"
+                                                    onClick={() => apagarPublicacao(postagem.id)}
+                                                    aria-label="Excluir publicação"
+                                                    title="Excluir publicação"
+                                                >
+                                                    <Icon name="trash" size={18} />
+                                                </button>
+                                            )}
+
                                             <div className="avatar-placeholder post-avatar">
                                                 <Icon name="person" size={22} />
                                             </div>

@@ -1,0 +1,28 @@
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.delete-post-card-button {
+    margin-left: auto;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 7px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+
+    color: #777;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.delete-post-card-button:hover {
+    color: #e53935;
+}

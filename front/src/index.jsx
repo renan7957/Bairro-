@@ -15,6 +15,8 @@ import Mapa from './pages/mapa/index.jsx';
 import './pages/mapa/index.scss';
 import Conta from  './pages/conta/index.jsx'
 import './pages/conta/index.scss'
+import FeedComunidade from './pages/comunidade/feed';
+
 import RotaProtegida from './components/rotaprotegida.jsx';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -33,6 +35,7 @@ root.render(
           <Route path="/comunidade" element={<Comunidade />} />
           <Route path="/mapa" element={<Mapa />} />
           <Route path="/conta" element={<Conta />} />
+          <Route path="/comunidade/:id" element={<FeedComunidade />} />
         </Route>
       </Routes>
     </BrowserRouter>

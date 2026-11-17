@@ -26,30 +26,32 @@ endpoints.post('/postagem', getAuthentication(), (req, resp, next) => {
 }, async (req, resp) => {
     try {
         const {
-            conteudo,
-            categoria,
-            titulo,
-            endereco,
-            descricao,
-            dataEvento,
-            latitude,
-            longitude
-        } = req.body || {};
+    conteudo,
+    categoria,
+    titulo,
+    endereco,
+    descricao,
+    dataEvento,
+    latitude,
+    longitude,
+    comunidade
+} = req.body || {};
         const idConta = req.user.id;
         const foto = req.file ? `/uploads/${req.file.filename}` : '';
 
         const id = await service.criarPostagem(
-            idConta,
-            conteudo,
-            categoria,
-            titulo,
-            endereco,
-            descricao,
-            foto,
-            dataEvento,
-            latitude,
-            longitude
-        );
+    idConta,
+    conteudo,
+    categoria,
+    titulo,
+    endereco,
+    descricao,
+    foto,
+    dataEvento,
+    latitude,
+    longitude,
+    comunidade
+);
 
         resp.status(201).send({ id });
 
@@ -73,7 +75,9 @@ endpoints.get('/postagem', getAuthentication(), async (req, resp) => {
         const idConta = req.user.id;
 
         await limparLocaisExpirados();
-        const postagens = await service.listarPostagens(idConta);
+        const comunidade = req.query.comunidade || null;
+
+const postagens = await service.listarPostagens(idConta, comunidade);
 
         resp.send(postagens);
 

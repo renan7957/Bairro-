@@ -7,10 +7,10 @@ async function getColunasPostagem() {
 }
 
 // Salvar publicação
-export async function savePostagem(idConta, conteudo, categoria, titulo = '', endereco = '', descricao = '', foto = '', dataEvento = '', latitude = null, longitude = null) {
+export async function savePostagem(idConta, conteudo, categoria, titulo = '', endereco = '', descricao = '', foto = '', dataEvento = '', latitude = null, longitude = null, comunidade = null) {
     const colunas = await getColunasPostagem();
-    const campos = ['id_conta'];
-    const valores = [idConta];
+    const campos = ['id_conta', 'comunidade'];
+    const valores = [idConta, comunidade];
     if (colunas.has('categoria')) {
         campos.push('categoria');
         valores.push(categoria);
@@ -86,12 +86,13 @@ export async function savePostagem(idConta, conteudo, categoria, titulo = '', en
 }
 
 // Buscar publicações e informações das curtidas
-export async function getPostagens(idConta) {
+export async function getPostagens(idConta, comunidade = null) {
     const colunas = await getColunasPostagem();
     const campos = [
         'p.id',
         'p.conteudo',
         'p.data_postagem',
+        'p.comunidade',
         'c.id as id_conta',
         'c.nome',
         '(p.id_conta = ?) as minha',
@@ -110,22 +111,33 @@ export async function getPostagens(idConta) {
     if (colunas.has('latitude')) campos.push('p.latitude');
     if (colunas.has('longitude')) campos.push('p.longitude');
 
-    const command = `
-        select
-            ${campos.join(', ')}
+    const filtroComunidade = comunidade === 'geral'
+    ? 'p.comunidade is null'
+    : comunidade
+        ? 'p.comunidade = ?'
+        : '1 = 1';
 
-        from postagem p
+const command = `
+    select
+        ${campos.join(', ')}
 
-        inner join conta c
-            on p.id_conta = c.id
+    from postagem p
 
-        order by p.data_postagem desc
-    `;
+    inner join conta c
+        on p.id_conta = c.id
 
-    const [linhas] = await con.query(command, [
-        idConta,
-        idConta
-    ]);
+    where ${filtroComunidade}
+
+    order by p.data_postagem desc
+`;
+
+const valores = [idConta, idConta];
+
+if (comunidade && comunidade !== 'geral') {
+    valores.push(comunidade);
+}
+
+const [linhas] = await con.query(command, valores);
 
     return linhas.map((linha) => {
         const publicacao = { ...linha };

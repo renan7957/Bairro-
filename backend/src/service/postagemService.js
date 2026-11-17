@@ -16,6 +16,28 @@ function normalizarCategoria(categoria) {
     return 'aviso';
 }
 
+
+function normalizarComunidade(comunidade) {
+    const valor = String(comunidade || '').trim().toLowerCase();
+
+    if (!valor) return null;
+
+    const comunidadesPermitidas = [
+        'grajau',
+        'varginha',
+        'vila-sao-jose',
+        'interlagos'
+    ];
+
+    if (!comunidadesPermitidas.includes(valor)) {
+        throw erroDeValidacao('Comunidade inválida.');
+    }
+
+    return valor;
+}
+
+
+
 function erroDeValidacao(mensagem) {
     const erro = new Error(mensagem);
     erro.status = 400;
@@ -23,7 +45,7 @@ function erroDeValidacao(mensagem) {
 }
 
 // Criar publicação
-export async function criarPostagem(idConta, conteudo, categoria, titulo = '', endereco = '', descricao = '', foto = '', dataEvento = '', latitude, longitude) {
+export async function criarPostagem(idConta, conteudo, categoria, titulo = '', endereco = '', descricao = '', foto = '', dataEvento = '', latitude, longitude, comunidade = null) {
     const texto = typeof conteudo === 'string' ? conteudo.trim() : '';
     const tituloFormatado = typeof titulo === 'string' ? titulo.trim() : '';
     const enderecoFormatado = typeof endereco === 'string' ? endereco.trim() : '';
@@ -31,6 +53,7 @@ export async function criarPostagem(idConta, conteudo, categoria, titulo = '', e
     const fotoFormatada = typeof foto === 'string' ? foto.trim() : '';
     const dataEventoFormatada = typeof dataEvento === 'string' ? dataEvento.trim() : '';
     const categoriaNormalizada = normalizarCategoria(categoria);
+    const comunidadeFormatada = normalizarComunidade(comunidade);
     const latitudeFormatada = latitude === undefined || latitude === null || latitude === ''
         ? null
         : Number(latitude);
@@ -65,22 +88,27 @@ export async function criarPostagem(idConta, conteudo, categoria, titulo = '', e
     const conteudoFinal = texto || [tituloFormatado, descricaoFormatada, enderecoFormatado].filter(Boolean).join(' - ');
 
     return db.savePostagem(
-        idConta,
-        conteudoFinal,
-        categoriaNormalizada,
-        tituloFormatado,
-        enderecoFormatado,
-        descricaoFormatada,
-        fotoFormatada,
-        dataEventoFormatada,
-        latitudeFormatada,
-        longitudeFormatada
-    );
+    idConta,
+    conteudoFinal,
+    categoriaNormalizada,
+    tituloFormatado,
+    enderecoFormatado,
+    descricaoFormatada,
+    fotoFormatada,
+    dataEventoFormatada,
+    latitudeFormatada,
+    longitudeFormatada,
+    comunidadeFormatada
+);
 }
 
 // Listar publicações
-export async function listarPostagens(idConta) {
-    return db.getPostagens(idConta);
+export async function listarPostagens(idConta, comunidade = null) {
+    const comunidadeFormatada = comunidade === 'geral'
+        ? 'geral'
+        : normalizarComunidade(comunidade);
+
+    return db.getPostagens(idConta, comunidadeFormatada);
 }
 
 export async function removerLocaisExpirados() {

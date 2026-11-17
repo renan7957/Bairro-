@@ -419,6 +419,28 @@
     background: #fff0f1;
   }
 
+    .delete-post-card-button {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin-left: auto;
+    border: 0;
+    border-radius: 50%;
+    color: #6f82ad;
+    background: transparent;
+    cursor: pointer;
+    order: 3;
+}
+
+  .delete-post-card-button:hover {
+    color: #bc3546;
+    background: #fff0f1;
+  }
+
   .post-content {
     margin: 9px 0 8px 39px;
   }

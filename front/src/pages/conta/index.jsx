@@ -217,11 +217,22 @@ export default function Conta() {
                                             key={postagem.id}
                                         >
                                             <div className="minha-publicacao-topo">
-                                                <strong>{postagem.nome}</strong>
-                                                <span>
-                                                    {new Date(postagem.data_postagem).toLocaleString('pt-BR')}
-                                                </span>
-                                            </div>
+    <strong>{postagem.nome}</strong>
+    <span>
+        {new Date(postagem.data_postagem).toLocaleString('pt-BR')}
+    </span>
+</div>
+
+{postagem.comunidade && (
+    <span className="publicacao-comunidade">
+        Comunidade: {{
+            grajau: 'Grajaú',
+            varginha: 'Varginha',
+            'vila-sao-jose': 'Vila São José',
+            interlagos: 'Interlagos'
+        }[postagem.comunidade] || postagem.comunidade}
+    </span>
+)}
 
                                             <p>{postagem.conteudo}</p>
 
